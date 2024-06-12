@@ -3,6 +3,7 @@
     public class ClubInScenarioInstance
     {
         public Guid ClubId { get; set; }
+        public float Ranking { get; set; }
         public Guid ScenarioInstanceId { get; set; }
         public virtual Club? Club { get; set; }
         public virtual ScenarioInstance? ScenarioInstance { get; set; }
