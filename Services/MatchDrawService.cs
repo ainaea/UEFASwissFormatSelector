@@ -19,5 +19,17 @@ namespace UEFASwissFormatSelector.Services
             }
             return pottedTeams;
         }
+
+        public IEnumerable<Pot> GenerateOpponentsForClub(ScenarioInstance scenarioInstance, Club club)
+        {
+            Pot[] possibleOpponents = new Pot[scenarioInstance.Scenario.NumberOfPot];
+            foreach (Pot pot in scenarioInstance.Pots)
+            {
+                var opponentsFromPot = new Pot(pot.Name, pot.ClubsInPot.Count());
+                opponentsFromPot.ClubsInPot = pot.ClubsInPot.Where( cp => cp.ClubId != club.Id && cp.Club?.CountryId != club.CountryId );
+                possibleOpponents.Append(opponentsFromPot);
+            }
+            return possibleOpponents;
+        }
     }
 }
