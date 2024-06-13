@@ -5,9 +5,10 @@ namespace UEFASwissFormatSelector.Services
 {
     public class MatchDrawService
     {
-        public IEnumerable<Pot> PotTeam(IEnumerable<ClubInScenarioInstance> clubsInScenarioInstance)
+        public IEnumerable<Pot> PotTeam(ScenarioInstance scenarioInstance)
         {
-            var scenario = new Scenario();
+            var scenario = scenarioInstance.Scenario;
+            var clubsInScenarioInstance = scenarioInstance.ClubsInScenarioInstance;
             Pot[] pottedTeams = new Pot[scenario.NumberOfPot];
             clubsInScenarioInstance = clubsInScenarioInstance.OrderByDescending( c => c.Ranking).ToList();
             for (int i = 0; i < scenario.NumberOfPot; i++)
