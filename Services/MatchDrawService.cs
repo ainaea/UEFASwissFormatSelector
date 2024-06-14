@@ -14,12 +14,13 @@ namespace UEFASwissFormatSelector.Services
             clubsInScenarioInstance = clubsInScenarioInstance.OrderByDescending( c => c.Ranking).ToList();
             for (int i = 0; i < scenario.NumberOfPot; i++)
             {
-                pottedTeams[i] = new Pot($"Pot {Enum.GetName(typeof(PotEnum), i) ?? i.ToString()}", scenario.NumberOfTeamsPerPot);
+                pottedTeams[i] = new Pot(GeneratePotName(i), scenario.NumberOfTeamsPerPot);
                 var clubsInPot = clubsInScenarioInstance.Skip(i * scenario.NumberOfTeamsPerPot).Take(scenario.NumberOfTeamsPerPot).ToList();
                 pottedTeams[i].ClubsInPot = clubsInPot.Select( c => new ClubInPot(c.ClubId, pottedTeams[i].Id) { Club = c.Club} );
             }
             return pottedTeams;
         }
+        private string GeneratePotName(int i) => $"Pot {Enum.GetName(typeof(PotEnum), i) ?? i.ToString()}";
 
         public IEnumerable<Pot> GenerateOpponentsForClub(ScenarioInstance scenarioInstance, Club club)
         {
