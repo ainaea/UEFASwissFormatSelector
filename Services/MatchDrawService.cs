@@ -31,5 +31,20 @@ namespace UEFASwissFormatSelector.Services
             }
             return possibleOpponents;
         }
+
+        public IEnumerable<Club> PickOpponents(int numberOfOpponents, IEnumerable<Club> from)
+        {
+            var opponents = new Club[numberOfOpponents];
+            if (from != null || numberOfOpponents > from!.Count())
+                return opponents;
+            var random = new Random();
+            for (int i = 0; i < numberOfOpponents; i++)
+            {
+                int choiceIndex = random.Next(0, from!.Count());
+                opponents.Append(from!.ToList()[choiceIndex]);
+                from!.ToList().Remove(from!.ToList()[choiceIndex]);
+            }
+            return opponents;
+        }
     }
 }
