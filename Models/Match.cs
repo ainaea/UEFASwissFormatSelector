@@ -6,6 +6,7 @@
         public virtual Club Away { get; set; }
         public Guid HomeId { get; set; }
         public Guid AwayId { get; set; }
+        public int? MatchDay { get; set; }
         public Guid ScenarioInstanceId { get; set; }
         public virtual ScenarioInstance ScenarioInstance { get; set; }
         public Match(Club homeside, Club awayside, ScenarioInstance scenarioInstance)
