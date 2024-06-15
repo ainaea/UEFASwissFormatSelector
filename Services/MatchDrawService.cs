@@ -6,6 +6,10 @@ namespace UEFASwissFormatSelector.Services
 {
     public class MatchDrawService
     {
+        public MatchDrawService()
+        {
+            allOpponents = new Dictionary<Guid, IEnumerable<Pot>>();
+        }
         public IEnumerable<Pot> PotTeam(ScenarioInstance scenarioInstance)
         {
             var scenario = scenarioInstance.Scenario;
@@ -36,12 +40,12 @@ namespace UEFASwissFormatSelector.Services
 
         public Dictionary<Guid, IEnumerable<Pot>> GenerateOpponentsForAllClubs(ScenarioInstance scenarioInstance)
         {
-            Dictionary<Guid, IEnumerable<Pot>> allPossibleOpponents = new Dictionary<Guid, IEnumerable<Pot>>();
+            //Dictionary<Guid, IEnumerable<Pot>> allPossibleOpponents = new Dictionary<Guid, IEnumerable<Pot>>();
             foreach (ClubInScenarioInstance club in scenarioInstance.ClubsInScenarioInstance)
             {
-                allPossibleOpponents[club.ClubId] = GenerateOpponentsForClub(scenarioInstance, club.Club!);
+                allOpponents[club.ClubId] = GenerateOpponentsForClub(scenarioInstance, club.Club!);
             }
-            return allPossibleOpponents;
+            return allOpponents;
         }
 
         public IEnumerable<Club> PickOpponents(int numberOfOpponents, IEnumerable<Club> from)
@@ -58,21 +62,28 @@ namespace UEFASwissFormatSelector.Services
             }
             return opponents;
         }
-        //private Dictionary<Guid, IEnumerable<Pot>>? opponents;
-        //public Dictionary<Guid, Club[]> FixMatches(IEnumerable<Club> opponents, Club club, Dictionary<Guid, Club[]> matchLineUp)
-        //{
-        //    foreach (Club opponent in opponents)
-        //    {
-        //        matchLineUp[club.Id].Append(opponent);
-        //        matchLineUp[opponent.Id][Array.IndexOf(matchLineUp[club.Id], opponent)] = club;
-        //    }
-        //    //also adjust possible opponents
-        //    return matchLineUp!;
-        //}
-
-        public int RemoveFromPossibleOpponents()
+        private Dictionary<Guid, IEnumerable<Pot>> allOpponents;  //Dictionary<Guid clubId, IEnumerable<Pot>>?  //allPossibleOpponents
+        public Dictionary<Guid, Club[]> FixMatches(IEnumerable<Club> opponents, Club club, Dictionary<Guid, Club[]> matchLineUp)
         {
-            return default(int);
+            foreach (Club opponent in opponents)
+            {
+                matchLineUp[club.Id].Append(opponent);
+                matchLineUp[opponent.Id][Array.IndexOf(matchLineUp[club.Id], opponent)] = club;
+            }
+            RemoveFromPossibleOpponents(opponents, club, allOpponents);
+            return matchLineUp!;
+        }
+
+        public void RemoveFromPossibleOpponents(IEnumerable<Club> opponents, Club club, Dictionary<Guid, IEnumerable<Pot>> allOpponents)
+        {
+            foreach(Club opponent in opponents)
+            {
+                var clubInPot = allOpponents[opponent.Id].FirstOrDefault(p => p.ClubsInPot.Any(cp => cp.ClubId == club.Id))?.ClubsInPot.ToList().FirstOrDefault(cp => cp.ClubId == club.Id);
+                allOpponents[opponent.Id].FirstOrDefault(p => p.ClubsInPot.Any(cp => cp.ClubId == club.Id))?.ClubsInPot.ToList().Remove(clubInPot!);
+
+                var opponentInPot = allOpponents[club.Id].FirstOrDefault(p => p.ClubsInPot.Any(cp => cp.ClubId == opponent.Id))?.ClubsInPot.ToList().FirstOrDefault(cp => cp.ClubId == opponent.Id);
+                allOpponents[club.Id].FirstOrDefault(p => p.ClubsInPot.Any(cp => cp.ClubId == opponent.Id))?.ClubsInPot.ToList().Remove(opponentInPot!);
+            }
         }
     }
 }
