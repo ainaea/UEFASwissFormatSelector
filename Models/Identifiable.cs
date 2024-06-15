@@ -8,6 +8,10 @@ namespace UEFASwissFormatSelector.Models
         [MaxLength(50)]
         public string Name { get; set; } = string.Empty;
         [Key]
-        public Guid Id { get; set; }        
+        public Guid Id { get; set; }
+        public Identifiable()
+        {
+            Id = Guid.NewGuid();
+        }
     }
 }

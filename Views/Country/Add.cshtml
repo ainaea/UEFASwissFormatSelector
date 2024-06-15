@@ -1,0 +1,26 @@
+﻿@model Country
+@{
+    ViewData["Title"] = "Register a country";
+}
+
+<form asp-action="Add" method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="mb-3 row">
+        <label asp-for="Name" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="mb-3 row">
+        <label asp-for="Abbrevation" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            <input asp-for="Abbrevation" class="form-control" />
+            <span asp-validation-for="Abbrevation" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div>
+        <button type="submit" class="btn btn-primary">Register</button>
+    </div>
+</form>
