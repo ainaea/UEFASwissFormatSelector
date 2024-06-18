@@ -6,7 +6,7 @@ namespace UEFASwissFormatSelector.Models
     {
         public string? Logo { get; set; }
         public Country? Country { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Please select a valid country.")]
         public Guid CountryId { get; set; }
     }
 }
