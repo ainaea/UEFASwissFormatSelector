@@ -1,0 +1,40 @@
+﻿@model Scenario
+@{
+    ViewData["Title"] = "Register a scenario";
+}
+<form asp-action="Add" method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="mb-3 row">
+        <label asp-for="Name" class="col-sm-1 col-form-label"></label>
+        <div class="col-sm-2">
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+        <label asp-for="NumberOfPot" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-1">
+            <input asp-for="NumberOfPot" class="form-control" />
+            <span asp-validation-for="NumberOfPot" class="text-danger"></span>
+        </div>
+        <label asp-for="HomeAndAwayPerOpponent" class="col-sm-3 col-form-label"></label>
+        <div class="col-sm-1">
+            <input asp-for="HomeAndAwayPerOpponent" class="form-control" />
+            <span asp-validation-for="HomeAndAwayPerOpponent" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="mb-3 row">
+        <label asp-for="NumberOfTeamsPerPot" class="col-sm-3 col-form-label"></label>
+        <div class="col-sm-1">
+            <input asp-for="NumberOfTeamsPerPot" class="form-control" />
+            <span asp-validation-for="NumberOfTeamsPerPot" class="text-danger"></span>
+        </div>
+        <label asp-for="NumberOfGamesPerPot" class="col-sm-3 col-form-label"></label>
+        <div class="col-sm-1">
+            <input asp-for="NumberOfGamesPerPot" class="form-control" />
+            <span asp-validation-for="NumberOfGamesPerPot" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div>
+        <button type="submit" class="btn btn-primary">Register</button>
+    </div>
+</form>

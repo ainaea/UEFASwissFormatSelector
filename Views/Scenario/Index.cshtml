@@ -1,0 +1,43 @@
+﻿@model IEnumerable<Scenario>
+@{
+    ViewData["Title"] = "List of Registered Clubs";
+}
+@if(Model != null && Model.Count() > 0)
+{
+    int i = 1;
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>SN</th>
+                <th>Scenario</th>
+                <th>Pots</th>
+                <th>Teams per pot</th>
+                <th>Games per pot</th>
+                <th>Home and Away</th>
+                <th>***</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var scenario in Model)
+            {
+                <tr>
+                    <td>@(i++)</td>
+                    <td>@scenario.Name</td>
+                    <td>@scenario.NumberOfPot</td>
+                    <td>@scenario.NumberOfTeamsPerPot</td>
+                    <td>@scenario.NumberOfGamesPerPot</td>
+                    <td>@(scenario.HomeAndAwayPerOpponent? "Yes" : "No")</td>
+                    <td>
+                        <a class="btn btn-primary" asp-action="Edit" asp-route-id="@scenario.Id">Edit</a>
+                        <a class="btn btn-primary" asp-action="Edit" asp-route-id="@scenario.Id">Explore</a>
+                    </td>
+                </tr>                
+            }
+        </tbody>
+    </table>    
+}
+else
+{
+    <h4 class="display-4">No club to display at the moment</h4>
+}
+<a class="btn btn-primary" asp-action="Add">Add Scenario</a>
