@@ -1,0 +1,32 @@
+﻿@model List<SelectViewModel>
+@{
+    ViewData["Title"] = $"Add clubs to Simulation";
+}
+
+@if (Model == null || Model.Count() == 0)
+{
+    <h5>No clubs to display at the moment. <a asp-controller="Club" asp-action="Add">Try adding club.</a></h5>
+}
+else
+{
+    <form method="post" asp-route-scenarioInstanceId="@ViewBag.scenarioInstanceId">
+        <div asp-validation-summary="All" class="text-danger"></div>
+        @for (int i = 0; i < Model.Count(); i++)
+        {
+            {
+                <div class="form-check m-1">
+                    <input type="hidden" asp-for="@Model[i].Id" />
+                    <input type="hidden" asp-for="@Model[i].Name" />
+                    <input asp-for="@Model[i].IsSelected" class="form-check-input" />
+                    <label class="form-check-label" asp-for="@Model[i].IsSelected">
+                        @Model[i].Name
+                    </label>
+                </div>
+            }
+        }
+        <div>
+            <button type="submit" class="btn btn-primary">Add clubs</button>
+        </div>
+    </form>
+    
+}

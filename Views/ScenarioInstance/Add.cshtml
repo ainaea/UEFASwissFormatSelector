@@ -1,0 +1,46 @@
+﻿@model AddScenarioInstanceViewModel
+@{
+    ViewData["Title"] = $"New {Model.Name} Simulation";
+}
+
+<form asp-action="Add" method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <input asp-for="Scenario.Id" class="form-control" hidden/>
+    <div class="mb-3 row">
+        <label asp-for="Name" class="col-sm-1 col-form-label">Simulation</label>
+        <div class="col-sm-2">
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+        <label asp-for="Scenario.Name" class="col-sm-1 col-form-label">Scenario</label>
+        <div class="col-sm-2">
+            <input asp-for="Scenario.Name" class="form-control" readonly />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+        <label asp-for="Scenario.HomeAndAwayPerOpponent" class="col-sm-3 col-form-label"></label>
+        <div class="col-sm-1 form-check mt-auto">
+            <input asp-for="Scenario.HomeAndAwayPerOpponent" class="form-check-input bg-primary" disabled />
+        </div>
+    </div>
+    <div class="mb-3 row">
+        <label asp-for="Scenario.NumberOfTeamsPerPot" class="col-sm-3 col-form-label"></label>
+        <div class="col-sm-1">
+            <input asp-for="Scenario.NumberOfTeamsPerPot" class="form-control" readonly />
+            <span asp-validation-for="Scenario.NumberOfTeamsPerPot" class="text-danger"></span>
+        </div>
+        <label asp-for="Scenario.NumberOfGamesPerPot" class="col-sm-3 col-form-label"></label>
+        <div class="col-sm-1">
+            <input asp-for="Scenario.NumberOfGamesPerPot" class="form-control" readonly />
+            <span asp-validation-for="Scenario.NumberOfGamesPerPot" class="text-danger"></span>
+        </div>
+        <label asp-for="Scenario.NumberOfPot" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-1">
+            <input asp-for="Scenario.NumberOfPot" class="form-control" readonly />
+            <span asp-validation-for="Scenario.NumberOfPot" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div>
+        <button type="submit" class="btn btn-primary">Start Simulation</button>
+    </div>
+</form>

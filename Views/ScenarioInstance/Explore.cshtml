@@ -1,0 +1,61 @@
+﻿@model ExploreScenarioInstanceViewModel
+@{
+    ViewData["Title"] = $"Explore {Model.Name} Simulation";
+}
+
+@if (Model.ClubsInScenarioInstance == null || Model.ClubsInScenarioInstance.Count() == 0 || Model.ClubsInScenarioInstance.Any( c=> c== null))
+{
+    <h5>No clubs in this Simulation yet</h5>
+    <a class="btn btn-primary" asp-action="AddClubs" asp-route-scenarioInstanceId="@Model.Id">Add Clubs</a>
+}
+else
+{
+    <h5>Clubs in @Model.Name are</h5>
+    @* <form method="post" asp-route-scenarioInstanceId="@ViewBag.scenarioInstanceId">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>SN</th>
+                    <th>Club</th>
+                    <th>Ranking</th>
+                    <th>***</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < Model.ClubsInScenarioInstance.Count(); i++)
+                {
+                    <tr>
+                        <td>@(i + 1)</td>
+                        <td>@Model.ClubsInScenarioInstance.ToList()[i].Club?.Name</td>
+                        <td>@Model.ClubsInScenarioInstance.ToList()[i].Ranking</td>
+                        <td>***</td>
+                    </tr>                    
+                }
+            </tbody>
+        </table>
+    </form> *@    
+    int sn = 1;
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>SN</th>
+                <th>Club</th>
+                <th>Ranking</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var club in Model.ClubsInScenarioInstance)
+            {
+                <tr>
+                    <td>@(sn++)</td>
+                    <td>@club.Club?.Name</td>
+                    <td>@club.Ranking</td>
+                </tr>
+            }
+        </tbody>
+    </table>    
+    <span>
+        <p><a class="btn btn-primary">Rank these teams</a> to proceed</p>
+    </span>
+}
+

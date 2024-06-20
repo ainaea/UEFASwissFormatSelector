@@ -1,0 +1,45 @@
+﻿@model IEnumerable<ScenarioInstance>
+@{
+    ViewData["Title"] = "All Scenario Simulations";
+}
+
+@if (Model != null && Model.Count() > 0)
+{
+    int i = 1;
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>SN</th>
+                <th>Scenario</th>
+                <th>Instance</th>
+                <th>Pots</th>
+                <th>Teams per pot</th>
+                <th>Games per pot</th>
+                <th>Home and Away</th>
+                <th>***</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var instance in Model)
+            {
+                <tr>
+                    <td>@(i++)</td>
+                    <td>@instance.Scenario.Name</td>
+                    <td>@instance.Name</td>
+                    <td>@instance.Scenario.NumberOfPot</td>
+                    <td>@instance.Scenario.NumberOfTeamsPerPot</td>
+                    <td>@instance.Scenario.NumberOfGamesPerPot</td>
+                    <td>@(instance.Scenario.HomeAndAwayPerOpponent ? "Yes" : "No")</td>
+                    <td>
+                        <a class="btn btn-primary" asp-action="Edit" asp-route-scenarioInstanceId="@instance.Id">Rename</a>
+                        <a class="btn btn-primary" asp-action="Explore" asp-route-scenarioInstanceId="@instance.Id">Explore</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <h4>No simulation to display at the moment</h4>
+}

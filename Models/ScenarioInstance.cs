@@ -13,5 +13,12 @@
             Pots = new Pot[scenario.NumberOfPot];
             ClubsInScenarioInstance = new ClubInScenarioInstance[scenario.NumberOfPot * scenario.NumberOfTeamsPerPot];
         }
+        /// <summary>
+        /// To be used only for db purpose
+        /// </summary>
+        public ScenarioInstance()
+        {
+            
+        }
     }
 }
