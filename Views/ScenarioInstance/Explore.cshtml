@@ -5,35 +5,15 @@
 
 @if (Model.ClubsInScenarioInstance == null || Model.ClubsInScenarioInstance.Count() == 0 || Model.ClubsInScenarioInstance.Any( c=> c== null))
 {
+    //clubs not added to scenarioInstance yet
     <h5>No clubs in this Simulation yet</h5>
     <a class="btn btn-primary" asp-action="AddClubs" asp-route-scenarioInstanceId="@Model.Id">Add Clubs</a>
 }
-else
+else if (Model.Pots.Any(p=> p == null)|| Model.Pots.Count() == 0 @* || Model.Pots.Any(c => c.ClubsInPot == null) *@)    //clubs have not been potted
 {
+    //clubs added but not potted yet
     <h5>Clubs in @Model.Name are</h5>
-    @* <form method="post" asp-route-scenarioInstanceId="@ViewBag.scenarioInstanceId">
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>SN</th>
-                    <th>Club</th>
-                    <th>Ranking</th>
-                    <th>***</th>
-                </tr>
-            </thead>
-            <tbody>
-                @for (int i = 0; i < Model.ClubsInScenarioInstance.Count(); i++)
-                {
-                    <tr>
-                        <td>@(i + 1)</td>
-                        <td>@Model.ClubsInScenarioInstance.ToList()[i].Club?.Name</td>
-                        <td>@Model.ClubsInScenarioInstance.ToList()[i].Ranking</td>
-                        <td>***</td>
-                    </tr>                    
-                }
-            </tbody>
-        </table>
-    </form> *@    
+    
     int sn = 1;
     <table class="table table-bordered">
         <thead>
@@ -55,7 +35,57 @@ else
         </tbody>
     </table>    
     <span>
-        <p><a class="btn btn-primary">Rank these teams</a> to proceed</p>
+        <p>
+            <a asp-action="RankClubs" asp-route-scenarioInstanceId="@Model.Id" class="btn btn-primary">Rank these teams</a>
+            @if (Model.ClubsInScenarioInstance.Any( cisi=> cisi.Ranking > 0))
+            {
+                <form asp-action="PotClubs" asp-route-scenarioInstanceId="@Model.Id" method="post">
+                    <span style="display:none" id="confirmPotSpan">
+                        <span>This action is irreversible. Are you sure you want to pot these teams?</span>
+                        <button type="submit" class="btn btn-danger" style="Width:auto">Yes</button>
+                        <a class="btn btn-primary" style="Width:auto" onclick="confirmPot(false)">No</a>
+                    </span>
+                    <span id="potSpan">
+                        <a href="#" class="btn  btn-danger" onclick="confirmPot(true)">Pot teams</a>
+                    </span>
+                </form>
+            }
+        </p>
     </span>
+}
+else if (Model.Pots.Any(c => c.ClubsInPot != null))     //clubs have been potted
+{
+    foreach (var pot in Model.Pots)
+    {
+        int i = 1;
+        <h5>Clubs in @pot.Name</h5>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>SN</th>
+                    <th>Club</th>
+                    <th>Country</th>
+                    <th>***</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (ClubInPot cip in pot.ClubsInPot)
+                {
+                    <tr>
+                        <td>@(i++)</td>
+                        <td>@cip.Club?.Name</td>
+                        <td>@cip.Club?.Country?.Name</td>
+                        <td>
+
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}
+else
+{
+    <h5>No provison for this</h5>
 }
 

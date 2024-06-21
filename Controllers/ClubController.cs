@@ -13,14 +13,8 @@ namespace UEFASwissFormatSelector.Controllers
         }        
         [HttpGet]
         public IActionResult Index()
-        {
-            var clubs = _repository.Clubs;
-            var countries = _repository.Countries;
-            foreach (Club club in clubs.Where(cb => cb.Country == null && cb.CountryId != Guid.Empty))
-            {
-                club.Country = countries.FirstOrDefault(c => c.Id == club.CountryId);
-            }
-            return View(clubs);
+        {            
+            return View(_repository.Clubs);
         }
         [HttpGet]
         public IActionResult Add()

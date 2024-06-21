@@ -8,10 +8,12 @@ namespace UEFASwissFormatSelector.Controllers
     public class ScenarioInstanceController : Controller
     {
         private readonly IRepository repository;
+        private readonly IMatchDrawService matchDrawService;
 
-        public ScenarioInstanceController(IRepository repository)
+        public ScenarioInstanceController(IRepository repository, IMatchDrawService matchDrawService)
         {
             this.repository = repository;
+            this.matchDrawService = matchDrawService;
         }        
         [HttpGet]
         public IActionResult Index()
@@ -82,7 +84,8 @@ namespace UEFASwissFormatSelector.Controllers
                 Id = scenarioInstance.Id,
                 Scenario = scenarioInstance.Scenario,
                 Name = scenarioInstance.Name,
-                ClubsInScenarioInstance = scenarioInstance.ClubsInScenarioInstance
+                ClubsInScenarioInstance = scenarioInstance.ClubsInScenarioInstance,
+                Pots = scenarioInstance.Pots
             };
             if (!viewModel.ClubsInScenarioInstance.Any( c=>c == null))
                 foreach (var club in viewModel.ClubsInScenarioInstance)
@@ -139,5 +142,37 @@ namespace UEFASwissFormatSelector.Controllers
             }
             return View(selections);
         }
+        [HttpGet]
+        public IActionResult RankClubs(Guid scenarioInstanceId)
+        {
+            var scenarioInstance = repository.ScenarioInstances.FirstOrDefault(s => s.Id == scenarioInstanceId);
+            if (scenarioInstance == null)
+                return RedirectToAction(nameof(Index));
+            ViewBag.scenarioInstanceId = scenarioInstanceId;
+            var viewModel = scenarioInstance.ClubsInScenarioInstance;
+            return View(viewModel);
+        }
+        [HttpPost]
+        public IActionResult RankClubs(IEnumerable<ClubInScenarioInstance> model, Guid scenarioInstanceId)
+        {
+            if (ModelState.IsValid)
+            {
+                var scenarioInstance = repository.ScenarioInstances.FirstOrDefault(s => s.Id == scenarioInstanceId);
+                if (scenarioInstance == null)
+                    return RedirectToAction(nameof(Index));
+                scenarioInstance.ClubsInScenarioInstance = model;
+                return RedirectToAction(nameof(Explore), new { scenarioInstanceId = scenarioInstanceId });
+            }
+            return RedirectToAction(nameof(Index));
+        }
+        [HttpPost]
+        public IActionResult PotClubs(IEnumerable<ClubInScenarioInstance> model, Guid scenarioInstanceId)
+        {
+            var scenarioInstance = repository.ScenarioInstances.FirstOrDefault(s => s.Id == scenarioInstanceId);
+            if (scenarioInstance == null)
+                return RedirectToAction(nameof(Index));
+            scenarioInstance.Pots = matchDrawService.PotTeam(scenarioInstance);
+            return RedirectToAction(nameof(Explore), new { scenarioInstanceId = scenarioInstanceId });
+        }        
     }
 }

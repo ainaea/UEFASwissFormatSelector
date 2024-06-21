@@ -4,7 +4,7 @@ using UEFASwissFormatSelector.Models;
 
 namespace UEFASwissFormatSelector.Services
 {
-    public class MatchDrawService
+    public class MatchDrawService: IMatchDrawService
     {
         public MatchDrawService()
         {
@@ -20,7 +20,8 @@ namespace UEFASwissFormatSelector.Services
             {
                 pottedTeams[i] = new Pot(GeneratePotName(i), scenario.NumberOfTeamsPerPot);
                 var clubsInPot = clubsInScenarioInstance.Skip(i * scenario.NumberOfTeamsPerPot).Take(scenario.NumberOfTeamsPerPot).ToList();
-                pottedTeams[i].ClubsInPot = clubsInPot.Select( c => new ClubInPot(c.ClubId, pottedTeams[i].Id) { Club = c.Club} );
+                pottedTeams[i].ClubsInPot = clubsInPot.Select( c => new ClubInPot(c.ClubId, pottedTeams[i].Id) { Club = c.Club} ).ToList();
+                pottedTeams[i].ScenarioInstanceId = scenarioInstance.Id;
             }
             return pottedTeams;
         }

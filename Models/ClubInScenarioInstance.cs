@@ -12,5 +12,13 @@
             ClubId = clubId;
             ScenarioInstanceId = scenarioInstanceId;
         }
+        /// <summary>
+        /// For model minding and db only
+        /// </summary>
+        public ClubInScenarioInstance()
+        {
+            //ClubId = clubId;
+            //ScenarioInstanceId = scenarioInstanceId;
+        }
     }
 }
