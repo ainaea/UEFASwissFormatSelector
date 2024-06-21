@@ -1,46 +1,31 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using UEFASwissFormatSelector.Models;
+using UEFASwissFormatSelector.Services;
 
 namespace UEFASwissFormatSelector.Controllers
 {
     public class ClubController : Controller
     {
-        private static List<Club> _clubs;
-        public static List<Club> Clubs { get => _clubs ?? SetupClubs(); }
-        public ClubController()
+        private IRepository _repository;
+        public ClubController(IRepository repository)
         {
-            if (_clubs == null)
-                _clubs = new List<Club>
-            {
-                new Club{ Name = "Manchester City", CountryId = new Guid("a5300dfa-f995-4bb3-9e2e-009b85752995")},
-                new Club{ Name = "Real Madrid", CountryId = new Guid("8bb21cd3-572c-4392-bf4d-29aa4cf58b06")},
-                new Club{ Name = "Bayern Munich", CountryId = new Guid("6321ef33-73b5-45f8-9927-9afb37f39844")},
-                new Club{ Name = "Inter Milan", CountryId = new Guid("5dcf05a0-aeec-487e-bab1-10a4b4913ef3")},
-            };
-        }
-        private static List<Club> SetupClubs()
-        {
-            return new List<Club>
-            {
-                new Club{ Name = "Manchester City", CountryId = new Guid("a5300dfa-f995-4bb3-9e2e-009b85752995")},
-                new Club{ Name = "Real Madrid", CountryId = new Guid("8bb21cd3-572c-4392-bf4d-29aa4cf58b06")},
-                new Club{ Name = "Bayern Munich", CountryId = new Guid("6321ef33-73b5-45f8-9927-9afb37f39844")},
-                new Club{ Name = "Inter Milan", CountryId = new Guid("5dcf05a0-aeec-487e-bab1-10a4b4913ef3")},
-            };
-        }
+            _repository = repository;
+        }        
         [HttpGet]
         public IActionResult Index()
         {
-            foreach (Club club in _clubs?.Where( cb=> cb.Country == null && cb.CountryId != Guid.Empty))
+            var clubs = _repository.Clubs;
+            var countries = _repository.Countries;
+            foreach (Club club in clubs.Where(cb => cb.Country == null && cb.CountryId != Guid.Empty))
             {
-                club.Country = CountryController.Countries.FirstOrDefault(c => c.Id == club.CountryId);
+                club.Country = countries.FirstOrDefault(c => c.Id == club.CountryId);
             }
-            return View(_clubs);
+            return View(clubs);
         }
         [HttpGet]
         public IActionResult Add()
         {
-            ViewBag.Countries = CountryController.Countries;
+            ViewBag.Countries = _repository.Countries;
             return View();
         }
         [HttpPost]
@@ -48,21 +33,21 @@ namespace UEFASwissFormatSelector.Controllers
         {
             if (ModelState.IsValid)
             {
-                _clubs.Add(club);
+                (_repository.Clubs as List<Club>)?.Add(club);
                 return RedirectToAction(nameof(Index));
             }
-            ViewBag.Countries = CountryController.Countries;
+            ViewBag.Countries = _repository.Countries;
             return View(club);
         }
         [HttpGet]
         public IActionResult Edit(Guid id)
         {
-            var club = _clubs.Find(c => c.Id == id);
+            var club = _repository.Clubs.ToList().Find(c => c.Id == id);
             if (club == null)
             {
                 RedirectToAction(nameof(Index));
             }
-            ViewBag.Countries = CountryController.Countries;
+            ViewBag.Countries = _repository.Countries;
             return View(club);
         }
         [HttpPost]
@@ -70,12 +55,12 @@ namespace UEFASwissFormatSelector.Controllers
         {
             if (ModelState.IsValid)
             {
-                var dbCLub = _clubs.FirstOrDefault(c => c.Id == club.Id);
+                var dbCLub = _repository.Clubs.FirstOrDefault(c => c.Id == club.Id);
                 if (dbCLub != null)
-                    _clubs[_clubs.IndexOf(dbCLub)] = club;
+                    (_repository.Clubs as List<Club>)![_repository.Clubs.ToList().IndexOf(dbCLub)] = club;
                 return RedirectToAction(nameof(Index));
             }
-            ViewBag.Countries = CountryController.Countries;
+            ViewBag.Countries = _repository.Scenarios;
             return View(club);
         }
     }

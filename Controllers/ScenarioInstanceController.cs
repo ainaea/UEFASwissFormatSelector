@@ -1,41 +1,27 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using UEFASwissFormatSelector.Models;
+using UEFASwissFormatSelector.Services;
 using UEFASwissFormatSelector.ViewModels;
 
 namespace UEFASwissFormatSelector.Controllers
 {
     public class ScenarioInstanceController : Controller
     {
-        private static List<ScenarioInstance> _scenarioInstances;
-        public static List<ScenarioInstance> Scenarios { get => _scenarioInstances ?? SetupScenarios(); }
-        public ScenarioInstanceController()
-        {
-            if (_scenarioInstances == null)
-                SetupScenarios();
-        }
-        private static List<ScenarioInstance> SetupScenarios()
-        {
-            //var UEFA2425 = ScenarioController.Scenarios.FirstOrDefault(s => s.Id == new Guid("c5300dfa-f995-4bb3-9e2e-009b85752995"));
-            //var EPL = ScenarioController.Scenarios.FirstOrDefault(s => s.Id == new Guid("d5300dfa-f995-4bb3-9e2e-009b85752995"));
+        private readonly IRepository repository;
 
-            _scenarioInstances = new List<ScenarioInstance>();
-            //if (UEFA2425 != null)
-            //    _scenarioInstances.Add()
-            //{
-            //    new ScenarioInstance{ Name = "UEFA2425", ScenarioId = new Guid("c5300dfa-f995-4bb3-9e2e-009b85752995")},
-            //    new ScenarioInstance{ Name = "EPL", ScenarioId = new Guid("d5300dfa-f995-4bb3-9e2e-009b85752995")}
-            //};
-            return _scenarioInstances;
-        }
+        public ScenarioInstanceController(IRepository repository)
+        {
+            this.repository = repository;
+        }        
         [HttpGet]
         public IActionResult Index()
         {
-            return View(_scenarioInstances);
+            return View(repository.ScenarioInstances);
         }
         [HttpGet]
         public IActionResult Add(Guid scenarioId)
         {
-            var scenario = ScenarioController.Scenarios.FirstOrDefault(s => s.Id == scenarioId);
+            var scenario = repository.Scenarios.FirstOrDefault(s => s.Id == scenarioId);
             if (scenario == null)
                 return RedirectToAction(nameof(Index), nameof(Scenario));
             var viewModel = new AddScenarioInstanceViewModel();
@@ -47,14 +33,14 @@ namespace UEFASwissFormatSelector.Controllers
         {
             if (ModelState.IsValid)
             {
-                var scenario = ScenarioController.Scenarios.FirstOrDefault(s => s.Id == instanceVM.Scenario.Id);
+                var scenario = repository.Scenarios.FirstOrDefault(s => s.Id == instanceVM.Scenario.Id);
                 if (scenario == null)
                     return RedirectToAction(nameof(Index), nameof(Scenario));
                 var instance = new ScenarioInstance(scenario)
                 {
                     Name = instanceVM.Name
                 };
-                _scenarioInstances.Add(instance);
+                (repository.ScenarioInstances as List<ScenarioInstance>)?.Add(instance);
                 return RedirectToAction(nameof(Index));
             }
             return View(instanceVM);
@@ -62,7 +48,7 @@ namespace UEFASwissFormatSelector.Controllers
         [HttpGet]
         public IActionResult Edit(Guid scenarioInstanceId)
         {
-            var scenarioInstance = _scenarioInstances.FirstOrDefault(s => s.Id == scenarioInstanceId);
+            var scenarioInstance = repository.ScenarioInstances.FirstOrDefault(s => s.Id == scenarioInstanceId);
             if (scenarioInstance == null)
                 return RedirectToAction(nameof(Index));
             var viewModel = new EditScenarioInstanceViewModel
@@ -78,7 +64,7 @@ namespace UEFASwissFormatSelector.Controllers
         {
             if (ModelState.IsValid)
             {
-                var scenarioInstance = _scenarioInstances.FirstOrDefault(s => s.Id == instanceVM.InstanceId);
+                var scenarioInstance = repository.ScenarioInstances.FirstOrDefault(s => s.Id == instanceVM.InstanceId);
                 if (scenarioInstance != null)
                     scenarioInstance.Name = instanceVM.Name;
                 return RedirectToAction(nameof(Index));
@@ -88,7 +74,7 @@ namespace UEFASwissFormatSelector.Controllers
         [HttpGet]
         public IActionResult Explore(Guid scenarioInstanceId)
         {
-            var scenarioInstance = _scenarioInstances.FirstOrDefault(s => s.Id == scenarioInstanceId);
+            var scenarioInstance = repository.ScenarioInstances.FirstOrDefault(s => s.Id == scenarioInstanceId);
             if (scenarioInstance == null)
                 return RedirectToAction(nameof(Index));
             var viewModel = new ExploreScenarioInstanceViewModel
@@ -101,18 +87,18 @@ namespace UEFASwissFormatSelector.Controllers
             if (!viewModel.ClubsInScenarioInstance.Any( c=>c == null))
                 foreach (var club in viewModel.ClubsInScenarioInstance)
                 {
-                    club.Club = ClubController.Clubs.FirstOrDefault(c => c.Id == club.ClubId);
+                    club.Club = repository.Clubs.FirstOrDefault(c => c.Id == club.ClubId);
                 }
             return View(viewModel);
         }
         [HttpGet]
         public IActionResult AddClubs(Guid scenarioInstanceId)
         {
-            var scenarioInstance = _scenarioInstances.FirstOrDefault(s => s.Id == scenarioInstanceId);
+            var scenarioInstance = repository.ScenarioInstances.FirstOrDefault(s => s.Id == scenarioInstanceId);
             if (scenarioInstance == null)
                 return RedirectToAction(nameof(Index));
             var viewModel = new List<SelectViewModel>();
-            foreach (Club club in ClubController.Clubs)
+            foreach (Club club in repository.Clubs)
             {
                 viewModel.Add(new SelectViewModel
                 {
@@ -128,7 +114,7 @@ namespace UEFASwissFormatSelector.Controllers
         {
             if (ModelState.IsValid)
             {
-                var scenarioInstance = _scenarioInstances.FirstOrDefault(s => s.Id == scenarioInstanceId);
+                var scenarioInstance = repository.ScenarioInstances.FirstOrDefault(s => s.Id == scenarioInstanceId);
                 if (scenarioInstance == null)
                     return RedirectToAction(nameof(Index));
                 var checkedSelections = selections.Where(s => s.IsSelected).ToList();
@@ -145,7 +131,7 @@ namespace UEFASwissFormatSelector.Controllers
                 {
                     clubsInInstance.Add( new ClubInScenarioInstance(item.Id, scenarioInstanceId)
                     {
-                        Club = ClubController.Clubs.FirstOrDefault(c=> c.Id == item.Id)
+                        Club = repository.Clubs.FirstOrDefault(c=> c.Id == item.Id)
                     });
                 }
                 scenarioInstance.ClubsInScenarioInstance = clubsInInstance;

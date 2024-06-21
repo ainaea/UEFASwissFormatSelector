@@ -1,35 +1,21 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using UEFASwissFormatSelector.Models;
+using UEFASwissFormatSelector.Services;
 
 namespace UEFASwissFormatSelector.Controllers
 {
     public class CountryController : Controller
     {
-        private static List<Country> _countries;
-        public static List<Country> Countries { get => _countries ?? SetupCountries(); }
-        public CountryController()
+        private readonly IRepository repository;
+
+        public CountryController(IRepository repository)
         {
-            if (_countries == null)
-                SetupCountries();
-
-
-        }
-
-        private static List<Country> SetupCountries()
-        {
-            _countries = new List<Country>
-            {
-                new Country{ Name = "England", Abbrevation = "Eng", Id = new Guid("a5300dfa-f995-4bb3-9e2e-009b85752995")},
-                new Country{ Name = "Italy", Abbrevation = "Ita", Id = new Guid("5dcf05a0-aeec-487e-bab1-10a4b4913ef3")},
-                new Country{ Name = "Spain", Abbrevation = "Esp", Id = new Guid("8bb21cd3-572c-4392-bf4d-29aa4cf58b06")},
-                new Country{ Name = "Germany", Abbrevation = "Ger", Id = new Guid("6321ef33-73b5-45f8-9927-9afb37f39844")},
-            };
-            return _countries;
-        }
+            this.repository = repository;
+        }        
         [HttpGet]
         public IActionResult Index()
         {            
-            return View(_countries);
+            return View(repository.Countries);
         }
         [HttpGet]
         public IActionResult Add()
@@ -41,7 +27,7 @@ namespace UEFASwissFormatSelector.Controllers
         {
             if(ModelState.IsValid)
             {
-                _countries.Add(country);
+                (repository.Countries as List<Country>)?.Add(country);
                 return RedirectToAction(nameof(Index));
             }
             return View(country);
@@ -49,7 +35,7 @@ namespace UEFASwissFormatSelector.Controllers
         [HttpGet]
         public IActionResult Edit(Guid id)
         {
-            var country = _countries.Find(c => c.Id == id);
+            var country = repository.Countries.ToList().Find(c => c.Id == id);
             if (country == null)
                 RedirectToAction(nameof(Index));
             return View(country);
@@ -59,9 +45,9 @@ namespace UEFASwissFormatSelector.Controllers
         {
             if (ModelState.IsValid)
             {
-                var dbCountry = _countries.FirstOrDefault( c=> c.Id == country.Id);
+                var dbCountry = repository.Countries.FirstOrDefault( c=> c.Id == country.Id);
                 if (dbCountry != null)
-                    _countries[_countries.IndexOf(dbCountry)] = country;
+                    (repository.Countries as List<Country>)![repository.Countries.ToList().IndexOf(dbCountry)] = country;
                 return RedirectToAction(nameof(Index));
             }
             return View(country);
