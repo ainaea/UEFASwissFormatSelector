@@ -53,7 +53,7 @@ else if (Model.Pots.Any(p=> p == null)|| Model.Pots.Count() == 0 @* || Model.Pot
         </p>
     </span>
 }
-else if (Model.Pots.Any(c => c.ClubsInPot != null))     //clubs have been potted
+else if (Model.Pots.Any(c => c.ClubsInPot != null) && Model.Opponents == null)     //clubs have been potted
 {
     foreach (var pot in Model.Pots)
     {
@@ -83,6 +83,46 @@ else if (Model.Pots.Any(c => c.ClubsInPot != null))     //clubs have been potted
             </tbody>
         </table>
     }
+    <a asp-action="GenerateOponents" asp-route-scenarioInstanceId="@Model.Id" class="btn btn-primary">Generate potential opponents</a>
+}
+else if (Model.Opponents != null)
+{
+    foreach (var pot in Model.Pots)
+    {
+        <h5>Possible opponents for Clubs in @pot.Name</h5>
+        foreach (var cip in pot.ClubsInPot)
+        {
+            int i = 1;
+            <h6>*** @cip.Club?.Name </h6>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>SN</th>
+                        <th>Club</th>
+                        <th>Pot</th>
+                        <th>Possible opponents </th>
+                        <th>Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (Pot opponentPot in Model.Opponents[cip.ClubId])
+                    {
+                        <tr>
+                            <td>@(i++)</td>
+                            <td>@cip.Club?.Name</td>
+                            <td>@opponentPot.Name</td>
+                            <td>@string.Join(", ", opponentPot.ClubsInPot.Select( cip=> cip.Club?.Name).ToList())</td>
+                            <td>
+                                @opponentPot.ClubsInPot.ToList().Count()
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        
+    }
+    //write logic for going pot to pot and then club to club to display respective opponent for each club from each pot
 }
 else
 {

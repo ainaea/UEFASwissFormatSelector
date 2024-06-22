@@ -74,6 +74,23 @@ namespace UEFASwissFormatSelector.Controllers
             return View(instanceVM);
         }
         [HttpGet]
+        //public IActionResult Explore(Guid scenarioInstanceId, ExploreScenarioInstanceViewModel? vm = null)
+        //{
+        //    var scenarioInstance = repository.ScenarioInstances.FirstOrDefault(s => s.Id == scenarioInstanceId);
+        //    if (scenarioInstance == null)
+        //        return RedirectToAction(nameof(Index));
+        //    ExploreScenarioInstanceViewModel viewModel;
+        //    if (vm == null)
+        //    {
+        //        viewModel = GenerateVM(scenarioInstance);
+        //    }
+        //    else
+        //    {
+        //        viewModel = vm as ExploreScenarioInstanceViewModel;
+        //    }
+
+        //    return View(viewModel);
+        //}
         public IActionResult Explore(Guid scenarioInstanceId)
         {
             var scenarioInstance = repository.ScenarioInstances.FirstOrDefault(s => s.Id == scenarioInstanceId);
@@ -85,15 +102,36 @@ namespace UEFASwissFormatSelector.Controllers
                 Scenario = scenarioInstance.Scenario,
                 Name = scenarioInstance.Name,
                 ClubsInScenarioInstance = scenarioInstance.ClubsInScenarioInstance,
-                Pots = scenarioInstance.Pots
+                Pots = scenarioInstance.Pots,
+                Opponents = scenarioInstance.Opponents
             };
-            if (!viewModel.ClubsInScenarioInstance.Any( c=>c == null))
+            if (!viewModel.ClubsInScenarioInstance.Any(c => c == null))
                 foreach (var club in viewModel.ClubsInScenarioInstance)
                 {
                     club.Club = repository.Clubs.FirstOrDefault(c => c.Id == club.ClubId);
                 }
             return View(viewModel);
         }
+
+        //private ExploreScenarioInstanceViewModel GenerateVM(ScenarioInstance scenarioInstance)
+        //{
+        //    ExploreScenarioInstanceViewModel viewModel = new ExploreScenarioInstanceViewModel
+        //    {
+        //        Id = scenarioInstance.Id,
+        //        Scenario = scenarioInstance.Scenario,
+        //        Name = scenarioInstance.Name,
+        //        ClubsInScenarioInstance = scenarioInstance.ClubsInScenarioInstance,
+        //        Pots = scenarioInstance.Pots
+        //    };
+        //    if (!viewModel.ClubsInScenarioInstance.Any(c => c == null))
+        //        foreach (var club in viewModel.ClubsInScenarioInstance)
+        //        {
+        //            club.Club = repository.Clubs.FirstOrDefault(c => c.Id == club.ClubId);
+        //        }
+
+        //    return viewModel;
+        //}
+
         [HttpGet]
         public IActionResult AddClubs(Guid scenarioInstanceId)
         {
@@ -173,6 +211,17 @@ namespace UEFASwissFormatSelector.Controllers
                 return RedirectToAction(nameof(Index));
             scenarioInstance.Pots = matchDrawService.PotTeam(scenarioInstance);
             return RedirectToAction(nameof(Explore), new { scenarioInstanceId = scenarioInstanceId });
-        }        
+        }
+        [HttpGet]
+        public IActionResult GenerateOponents(Guid scenarioInstanceId)
+        {
+            var scenarioInstance = repository.ScenarioInstances.FirstOrDefault(s => s.Id == scenarioInstanceId);
+            if (scenarioInstance == null)
+                return RedirectToAction(nameof(Index));
+            var opponnentsDictionary = matchDrawService.GenerateOpponentsForAllClubs(scenarioInstance);
+            //var viewModel = GenerateVM(scenarioInstance);
+            scenarioInstance.Opponents = opponnentsDictionary;
+            return RedirectToAction(nameof(Explore), new { scenarioInstanceId = scenarioInstanceId});
+        }
     }
 }

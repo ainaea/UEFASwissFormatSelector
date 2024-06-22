@@ -29,12 +29,12 @@ namespace UEFASwissFormatSelector.Services
 
         public IEnumerable<Pot> GenerateOpponentsForClub(ScenarioInstance scenarioInstance, Club club)
         {
-            Pot[] possibleOpponents = new Pot[scenarioInstance.Scenario.NumberOfPot];
+            List<Pot> possibleOpponents = new List<Pot>();
             foreach (Pot pot in scenarioInstance.Pots)
             {
-                var opponentsFromPot = new Pot(pot.Name, pot.ClubsInPot.Count());
-                opponentsFromPot.ClubsInPot = pot.ClubsInPot.Where( cp => cp.ClubId != club.Id && cp.Club?.CountryId != club.CountryId );
-                possibleOpponents.Append(opponentsFromPot);
+                var opponentsFromPot = new Pot(pot.Name, pot.ClubsInPot.Count()) { ScenarioInstanceId = scenarioInstance.Id};
+                opponentsFromPot.ClubsInPot = pot.ClubsInPot.Where( cp => cp.ClubId != club.Id && cp.Club?.CountryId != club.CountryId ).ToList();
+                possibleOpponents.Add(opponentsFromPot);
             }
             return possibleOpponents;
         }
