@@ -8,17 +8,22 @@ namespace UEFASwissFormatSelector.Services
         private IEnumerable<Country> _countries;
         private IEnumerable<Scenario> _scenarios;
         private IEnumerable<ScenarioInstance> _scenarioInstances;
-        public IEnumerable<Club> Clubs { 
-            get {
-                var detailedCLubs = new List<Club>();
+        public IEnumerable<Club> Clubs
+        {
+            get
+            {
                 foreach (var club in _clubs)
                 {
-                    club.Country = Countries.FirstOrDefault( c=> c.Id == club.CountryId);
-                    detailedCLubs.Add(club);
+                    if (club.Country == null)
+                    {
+                        club.Country = Countries.FirstOrDefault(c => c.Id == club.CountryId);
+                    }                    
                 }
-                return detailedCLubs;
-            } 
-            set => _clubs = value; }
+                return _clubs;
+            }
+            set => _clubs = value;
+        }
+
         public IEnumerable<Country> Countries { get => _countries; set => _countries = value; }
         public IEnumerable<Scenario> Scenarios { get => _scenarios; set => _scenarios = value; }
         public IEnumerable<ScenarioInstance> ScenarioInstances { get => _scenarioInstances; set => _scenarioInstances = value; }
