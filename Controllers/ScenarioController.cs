@@ -28,7 +28,7 @@ namespace UEFASwissFormatSelector.Controllers
         {
             if (ModelState.IsValid)
             {
-                var similarScenario = repository.Scenarios.FirstOrDefault(s => s.NumberOfTeamsPerPot == scenario.NumberOfTeamsPerPot && s.NumberOfTeamsPerPot == scenario.NumberOfTeamsPerPot && s.NumberOfGamesPerPot == scenario.NumberOfGamesPerPot && s.HomeAndAwayPerOpponent == scenario.HomeAndAwayPerOpponent );
+                var similarScenario = repository.Scenarios.FirstOrDefault(s => s.NumberOfTeamsPerPot == scenario.NumberOfTeamsPerPot && s.NumberOfPot == scenario.NumberOfPot && s.NumberOfGamesPerPot == scenario.NumberOfGamesPerPot && s.HomeAndAwayPerOpponent == scenario.HomeAndAwayPerOpponent );
                 if (similarScenario != null)
                 {
                     ModelState.AddModelError("", "Similar scenario is already existing");
