@@ -1,6 +1,6 @@
 ﻿@model ExploreScenarioInstanceViewModel
 @{
-    ViewData["Title"] = $"Explore {Model.Name} Simulation";
+    ViewData["Title"] = $"Explore {Model.Scenario.Name}-{Model.Name} Simulation";
 }
 
 @if (Model.ClubsInScenarioInstance == null || Model.ClubsInScenarioInstance.Count() == 0 || Model.ClubsInScenarioInstance.Any( c=> c== null))
@@ -85,7 +85,7 @@ else if (Model.Pots.Any(c => c.ClubsInPot != null) && Model.Opponents == null)  
     }
     <a asp-action="GenerateOponents" asp-route-scenarioInstanceId="@Model.Id" class="btn btn-primary">Generate potential opponents</a>
 }
-else if (Model.Opponents != null)
+else if (Model.Opponents != null && Model.MatchUps == null)
 {
     foreach (var pot in Model.Pots)
     {
@@ -123,6 +123,40 @@ else if (Model.Opponents != null)
         
     }
     //write logic for going pot to pot and then club to club to display respective opponent for each club from each pot
+    <a asp-action="ShowMatchUp" asp-route-scenarioInstanceId="@Model.Id" class="btn btn-primary">Do Matchups</a>
+}
+else if (Model.MatchUps != null)
+{
+    foreach (var pot in Model.Pots)
+    {
+        <h5>Selected opponents for Clubs in @pot.Name</h5>
+        int i = 1;
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>SN</th>
+                    <th>Club</th>
+                    <th>Selected opponents </th>
+                    <th>Count</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var cip in pot.ClubsInPot)
+                {
+                    var opponents = Model.MatchUps[cip.ClubId];
+                    <tr>
+                        <td>@(i++)</td>
+                        <td>@cip.Club?.Name</td>
+                        <td>@string.Join(", ", opponents.Select(club => $"{club.Name} ({club.Country?.Abbrevation}_{Model.Pots.FirstOrDefault( p=> p.ClubsInPot.Any( c=> c.ClubId == club.Id) )?.Name})").ToList())</td>
+                        <td>
+                            @opponents.ToList().Count()
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+    }
 }
 else
 {

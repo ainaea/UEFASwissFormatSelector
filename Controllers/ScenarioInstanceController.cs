@@ -103,7 +103,8 @@ namespace UEFASwissFormatSelector.Controllers
                 Name = scenarioInstance.Name,
                 ClubsInScenarioInstance = scenarioInstance.ClubsInScenarioInstance,
                 Pots = scenarioInstance.Pots,
-                Opponents = scenarioInstance.Opponents
+                Opponents = scenarioInstance.Opponents,
+                MatchUps = scenarioInstance.MatchUps
             };
             if (!viewModel.ClubsInScenarioInstance.Any(c => c == null))
                 foreach (var club in viewModel.ClubsInScenarioInstance)
@@ -222,6 +223,16 @@ namespace UEFASwissFormatSelector.Controllers
             //var viewModel = GenerateVM(scenarioInstance);
             scenarioInstance.Opponents = opponnentsDictionary;
             return RedirectToAction(nameof(Explore), new { scenarioInstanceId = scenarioInstanceId});
+        }
+        [HttpGet]
+        public IActionResult ShowMatchUp(Guid scenarioInstanceId)
+        {
+            var scenarioInstance = repository.ScenarioInstances.FirstOrDefault(s => s.Id == scenarioInstanceId);
+            if (scenarioInstance == null)
+                return RedirectToAction(nameof(Index));
+            var matchUpDictionary = matchDrawService.DoMatchUps(scenarioInstance, scenarioInstance.Scenario.NumberOfGamesPerPot);
+            scenarioInstance.MatchUps = matchUpDictionary;
+            return RedirectToAction(nameof(Explore), new { scenarioInstanceId = scenarioInstanceId });
         }
     }
 }
