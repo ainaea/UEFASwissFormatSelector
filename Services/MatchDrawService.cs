@@ -219,14 +219,14 @@ namespace UEFASwissFormatSelector.Services
                             int remainingOpponents = numberOfOpponentPerPot - ClubPotFixtureCount(kvp.Key, potName, fixedMatches);
                             if (remainingOpponents <= 0)
                                 continue;
-                            var possibleOpponentsFromPot = GetPotByName(potName, scenarioInstance.Pots)?.ClubsInPot.Select(c => c.Club).Where( c=> c!.Id != kvp.Key&& c.CountryId != kvpCLub?.CountryId && !ClubHasFixtureAgainst(kvp.Key, c.Id, fixedMatches)).ToList();
+                            var possibleOpponentsFromPot = GetPotByName(potName, scenarioInstance.Pots)?.ClubsInPot.Select(c => c.Club).Where( c=> c!.Id != kvp.Key && !ClubHasFixtureAgainst(kvp.Key, c.Id, fixedMatches)).ToList();
                             //All clubs returned above must have been maxed out by other clubs henece why they were not chosen before here. So replacement will have to be done.
-                            var selectedOpponents = FindOpponents(remainingOpponents, kvp.Key, new List<Club>(), possibleOpponentsFromPot?.ToList()!);
+                            var selectedOpponents = FindOpponents(remainingOpponents, kvp.Key, possibleOpponentsFromPot?.Where(c => c?.CountryId != kvpCLub?.CountryId)!.ToList<Club>() ?? new List<Club>(), possibleOpponentsFromPot?.ToList()!);
                             foreach (var selectedOpponent in selectedOpponents)
                             {
                                 var clubsInKVPotPlayingOpponet = otherClubsInKVPot?.Where(c => ClubHasFixtureAgainst(c!.Id, selectedOpponent.Id, fixedMatches)).ToList();
                                 //select one of the clubs in kvp pot to swap opponent with
-                                var selectedPotClubPlayingOpponent = FindOpponents(1, kvp.Key, new List<Club>(), clubsInKVPotPlayingOpponet!.ToList<Club>()!).First();
+                                var selectedPotClubPlayingOpponent = FindOpponents(1, kvp.Key, clubsInKVPotPlayingOpponet?.Where(c => c?.CountryId != kvpCLub?.CountryId)!.ToList<Club>() ?? new List<Club>(), clubsInKVPotPlayingOpponet!.ToList<Club>()!).First();
                                 var clubsWithIncompleteFixturesInOppositionPot = GetPotByName(potName, scenarioInstance.Pots)?.ClubsInPot.Select(c => c.Club).Where(c => c!.Id != kvp.Key && ClubPotFixtureFull(c!.Id, kvpPot, fixedMatches, numberOfOpponentPerPot))?.ToList();
                                 if (clubsWithIncompleteFixturesInOppositionPot != null)
                                 {
