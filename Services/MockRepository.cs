@@ -52,6 +52,7 @@ namespace UEFASwissFormatSelector.Services
                 new Club{ Name = "Bayern Munich", CountryId = new Guid("6321ef33-73b5-45f8-9927-9afb37f39844")},
                 new Club{ Name = "Borussia Dortmund", CountryId = new Guid("6321ef33-73b5-45f8-9927-9afb37f39844")},
                 new Club{ Name = "Bayer Leverkusen", CountryId = new Guid("6321ef33-73b5-45f8-9927-9afb37f39844")},
+                new Club{ Name = "Union Berlin", CountryId = new Guid("6321ef33-73b5-45f8-9927-9afb37f39844")},
                 new Club{ Name = "RB Leipzig", CountryId = new Guid("6321ef33-73b5-45f8-9927-9afb37f39844")},
                 new Club{ Name = "Inter Milan", CountryId = new Guid("5dcf05a0-aeec-487e-bab1-10a4b4913ef3")},
                 new Club{ Name = "Juventus", CountryId = new Guid("5dcf05a0-aeec-487e-bab1-10a4b4913ef3")},
