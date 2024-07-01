@@ -184,8 +184,8 @@ namespace UEFASwissFormatSelector.Services
                                 int clubPotCount = ClubPotFixtureCount(clubId, potName, fixedMatches);
                                 if (clubPotCount < numberOfOpponentPerPot)
                                 {
-                                    var allFreePotCLubs = GetPotByName(potName, scenarioInstance.Pots)!.ClubsInPot.Where(cip => !ClubPotFixtureFull(cip.ClubId, clubPotName, fixedMatches, numberOfOpponentPerPot)).Select(cip => cip.Club).Where( c => !ClubHasFixtureAgainst(c!.Id, clubId, fixedMatches)).ToList();
-                                    var opponentsForClub = FindOpponents(numberOfOpponentPerPot - clubPotCount, thisClub.Id, new List<Club>(), allFreePotCLubs);
+                                    var allFreePotCLubs = GetPotByName(potName, scenarioInstance.Pots)!.ClubsInPot.Where(cip =>cip.Club?.CountryId != thisClub.CountryId && !ClubPotFixtureFull(cip.ClubId, clubPotName, fixedMatches, numberOfOpponentPerPot)).Select(cip => cip.Club).Where( c => !ClubHasFixtureAgainst(c!.Id, clubId, fixedMatches)).ToList();
+                                    var opponentsForClub = FindOpponents(numberOfOpponentPerPot - clubPotCount, thisClub.Id, new List<Club>(), allFreePotCLubs!);
 
                                     if (opponentsForClub != null)
                                     {
