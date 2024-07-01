@@ -208,6 +208,7 @@ namespace UEFASwissFormatSelector.Services
                 foreach(var kvp in fixedMatches.Where(matches => matches.Value.Count < expectedMatchCount ))
                 {
                     string kvpPot = GetClubPotName(kvp.Key, scenarioInstance.Pots);
+                    var kvpCLub = scenarioInstance.ClubsInScenarioInstance.First(cisi => cisi.Club?.Id == kvp.Key).Club;
                     if (kvp.Value.Count >= expectedMatchCount)
                         break;
                     var otherClubsInKVPot = GetPotByName(kvpPot, scenarioInstance.Pots)?.ClubsInPot.Where(cip=> cip.Club?.Id!= kvp.Key).Select(cip => cip.Club).ToList();
@@ -218,7 +219,7 @@ namespace UEFASwissFormatSelector.Services
                             int remainingOpponents = numberOfOpponentPerPot - ClubPotFixtureCount(kvp.Key, potName, fixedMatches);
                             if (remainingOpponents <= 0)
                                 continue;
-                            var possibleOpponentsFromPot = GetPotByName(potName, scenarioInstance.Pots)?.ClubsInPot.Select(c => c.Club).Where( c=> c!.Id != kvp.Key && !ClubHasFixtureAgainst(kvp.Key, c.Id, fixedMatches)).ToList();
+                            var possibleOpponentsFromPot = GetPotByName(potName, scenarioInstance.Pots)?.ClubsInPot.Select(c => c.Club).Where( c=> c!.Id != kvp.Key&& c.CountryId != kvpCLub?.CountryId && !ClubHasFixtureAgainst(kvp.Key, c.Id, fixedMatches)).ToList();
                             //All clubs returned above must have been maxed out by other clubs henece why they were not chosen before here. So replacement will have to be done.
                             var selectedOpponents = FindOpponents(remainingOpponents, kvp.Key, new List<Club>(), possibleOpponentsFromPot?.ToList()!);
                             foreach (var selectedOpponent in selectedOpponents)
