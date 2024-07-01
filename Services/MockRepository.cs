@@ -48,6 +48,7 @@ namespace UEFASwissFormatSelector.Services
                 new Club{ Name = "Barcelona", CountryId = new Guid("8bb21cd3-572c-4392-bf4d-29aa4cf58b06")},
                 new Club{ Name = "Atlético Madrid", CountryId = new Guid("8bb21cd3-572c-4392-bf4d-29aa4cf58b06")},
                 new Club{ Name = "Sevilla", CountryId = new Guid("8bb21cd3-572c-4392-bf4d-29aa4cf58b06")},
+                new Club{ Name = "Real Sociedad", CountryId = new Guid("8bb21cd3-572c-4392-bf4d-29aa4cf58b06")},
                 new Club{ Name = "Villarreal", CountryId = new Guid("8bb21cd3-572c-4392-bf4d-29aa4cf58b06")},
                 new Club{ Name = "Bayern Munich", CountryId = new Guid("6321ef33-73b5-45f8-9927-9afb37f39844")},
                 new Club{ Name = "Borussia Dortmund", CountryId = new Guid("6321ef33-73b5-45f8-9927-9afb37f39844")},
@@ -72,12 +73,14 @@ namespace UEFASwissFormatSelector.Services
                 new Club{ Name = "Celtic", CountryId = new Guid("6661ef33-73b5-45f8-9927-9bfb37f39877")},
                 new Club{ Name = "Shakhtar Donetsk", CountryId = new Guid("6661ef33-73b5-45f8-9927-9bfb37f39888")},
                 new Club{ Name = "Galatasaray", CountryId = new Guid("6661ef33-73b5-45f8-9927-9bfb37f39899")},
-
                 new Club{ Name = "Red Star Belgrade", CountryId = new Guid("1661ef33-73b5-45f8-9927-9bfb37f39866")},
                 new Club{ Name = "Dinamo Zagreb", CountryId = new Guid("1661ef33-73b5-45f8-9927-9bfb37f39877")},
                 new Club{ Name = "Olympiacos", CountryId = new Guid("1661ef33-73b5-45f8-9927-9bfb37f39888")},
                 new Club{ Name = "Club Brugge", CountryId = new Guid("1661ef33-73b5-45f8-9927-9bfb37f39899")},
                 new Club{ Name = "Copenhagen", CountryId = new Guid("2661ef33-73b5-45f8-9927-9bfb37f39899")},
+
+                new Club{ Name = "Red Bull Salzburg", CountryId = new Guid("1691ef33-73b5-45f8-9927-9bfb37f39899")},
+                new Club{ Name = "Genk", CountryId = new Guid("1661ef33-73b5-45f8-9927-9bfb37f39899")},
             };
         }
         private IEnumerable<Country> SetupCountries()
@@ -99,6 +102,7 @@ namespace UEFASwissFormatSelector.Services
                 new Country{ Name = "Greece", Abbrevation = "GRE", Id = new Guid("1661ef33-73b5-45f8-9927-9bfb37f39888")},
                 new Country{ Name = "Belgium", Abbrevation = "BEL", Id = new Guid("1661ef33-73b5-45f8-9927-9bfb37f39899")},
                 new Country{ Name = "Denmark", Abbrevation = "DEN", Id = new Guid("2661ef33-73b5-45f8-9927-9bfb37f39899")},
+                new Country{ Name = "Austria", Abbrevation = "BEL", Id = new Guid("1691ef33-73b5-45f8-9927-9bfb37f39899")},
             };
         }
 
