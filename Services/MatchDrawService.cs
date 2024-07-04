@@ -271,6 +271,8 @@ namespace UEFASwissFormatSelector.Services
                                         List<Guid> swapUpOpponents = new List<Guid>();
                                         foreach (var club in clubsWithCompleteFixturesInOppositionPot!)
                                         {
+                                            if (ClubPotFixtureFull(kvp.Key, potName, fixedMatches, numberOfOpponentPerPot))
+                                                break;
                                             bool clubPlayingPlayableOpponent = fixedMatches[club!.Id].Any(clubId_pot => cWCFIOPIds!.Contains(ExtractClubId_Club_PotName(clubId_pot)) && /*GetClub(clubId_pot, scenarioInstance.ClubsInScenarioInstance).CountryId != kvpCLub!.CountryId &&*/ !swapUpOpponents.Contains(ExtractClubId_Club_PotName(clubId_pot)));
                                             //club already has a match with another playable opponents kvpCLub                                        
                                             if (clubPlayingPlayableOpponent)
@@ -281,6 +283,8 @@ namespace UEFASwissFormatSelector.Services
                                                 fixedMatches[kvp.Key].Add(GenerateClubPotName(club!.Id, potName));
                                                 foreach (var suitableClub in suitableClubs)
                                                 {
+                                                    if (ClubPotFixtureFull(kvp.Key, potName, fixedMatches, numberOfOpponentPerPot))
+                                                        break;
                                                     swapUpOpponents.Add(suitableClub.Id);
 
                                                     //add suitableClub fixture for kvp
@@ -294,11 +298,11 @@ namespace UEFASwissFormatSelector.Services
                                                     int bIndex = bValue.IndexOf(bValue.FirstOrDefault(kv => kv == GenerateClubPotName(suitableClub.Id, potName))!);
                                                     bValue[bIndex] = GenerateClubPotName(kvp.Key, kvpPot);
 
-                                                    if (!ClubPotFixtureFull(kvp.Key, potName, fixedMatches, numberOfOpponentPerPot))
+                                                    if (ClubPotFixtureFull(kvp.Key, potName, fixedMatches, numberOfOpponentPerPot))
                                                         break;
                                                 }
                                             }
-                                            if (!ClubPotFixtureFull(kvp.Key, potName, fixedMatches, numberOfOpponentPerPot))
+                                            if (ClubPotFixtureFull(kvp.Key, potName, fixedMatches, numberOfOpponentPerPot))
                                                 break;
                                         }
 
@@ -320,8 +324,11 @@ namespace UEFASwissFormatSelector.Services
                     fixedMatchesFull[kvp.Key].Add(GetClub(valueVal, scenarioInstance.ClubsInScenarioInstance));
                     //fixedMatchesFull[ExtractClubId_Club_PotName(valueVal)].Add(GetClub(kvp.Key.ToString(), scenarioInstance.ClubsInScenarioInstance));
                 }
-            }    
-            
+            }
+
+            if (fixedMatches.Any(kvp => kvp.Value.Count > expectedMatchCount))
+                Console.Write("Hello");
+
             return fixedMatchesFull;
         }
         private int FoundedOpponentsInPot(string potName, Guid clubId, Dictionary<Guid, List<string>> fixedMatches)
