@@ -44,6 +44,7 @@ namespace UEFASwissFormatSelector.Services
                 new Club{ Name = "Manchester United", CountryId = new Guid("a5300dfa-f995-4bb3-9e2e-009b85752995")},
                 new Club{ Name = "Newcastle United", CountryId = new Guid("a5300dfa-f995-4bb3-9e2e-009b85752995")},
                 new Club{ Name = "West Ham United", CountryId = new Guid("a5300dfa-f995-4bb3-9e2e-009b85752995")},
+                new Club{ Name = "Aston Villa", CountryId = new Guid("a5300dfa-f995-4bb3-9e2e-009b85752995")},
                 new Club{ Name = "Real Madrid", CountryId = new Guid("8bb21cd3-572c-4392-bf4d-29aa4cf58b06")},
                 new Club{ Name = "Barcelona", CountryId = new Guid("8bb21cd3-572c-4392-bf4d-29aa4cf58b06")},
                 new Club{ Name = "Atlético Madrid", CountryId = new Guid("8bb21cd3-572c-4392-bf4d-29aa4cf58b06")},
