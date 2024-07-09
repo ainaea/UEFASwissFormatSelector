@@ -116,9 +116,9 @@ namespace UEFASwissFormatSelector.Services
         }
         public Dictionary<Guid, List<Club>> DoMatchUps(ScenarioInstance scenarioInstance, int numberOfOpponentPerPot)
         {
-            Dictionary<Guid, List<string>> fixedMatches = new Dictionary<Guid, List<string>>();     //Guid is for clubId and string is the concatination of format "cludib_potname"
+            Dictionary<Guid, List<string>> fixedMatches = new Dictionary<Guid, List<string>>();     //Guid is for clubId and string is the concatination of format "opponentCludId_potname"
             Dictionary<Guid, List<Club>> fixedMatchesFull = new Dictionary<Guid, List<Club>>();
-            //initialize a club keys
+            //initialize all club keys
             foreach ( Club club in scenarioInstance.ClubsInScenarioInstance.Select( c=> c.Club).ToList())
             {
                 fixedMatches[club!.Id] = new List<string>();
