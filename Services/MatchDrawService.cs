@@ -370,5 +370,35 @@ namespace UEFASwissFormatSelector.Services
             var id = ExtractClubId_Club_PotName(str);
             return clubsInScenarioInstance.First( cisi => cisi.Club!.Id == id).Club!;
         }
+        private List<Guid> GetPossibleHomeOpponents(Dictionary<Guid, List<string>> fixedMatches, List<Guid> undecidedClubs, string potName)
+        {
+            return default;
+        }
+        private List<Guid> SelectHomeOpponents(List<Guid> clubsId, int target)
+        {
+            var selectedClubs = new List<Guid>();
+            if(clubsId == null)
+                return selectedClubs;
+            else if (clubsId.Count() <= target)
+                return clubsId;
+            else
+            {
+                var opponents = selectedClubs;                
+                var random = new Random();
+                for (int i = 0; i < target; i++)
+                {
+                    int choiceIndex = random.Next(0, clubsId!.Count());
+                    opponents.Add(clubsId!.ToList()[choiceIndex]);
+                    var newFrom = clubsId!.ToList();
+                    newFrom.Remove(clubsId!.ToList()[choiceIndex]);
+                    clubsId = newFrom;
+                }
+                return opponents;
+            }
+        }
+        private Dictionary<Guid, List<string>> UpdateFixedMatches(Dictionary<Guid, List<string>> fixedMatches, Guid clubId, List<Guid> selectedHomeOpponents)
+        {
+            return default;
+        }
     }
 }
