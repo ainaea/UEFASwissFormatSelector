@@ -370,9 +370,28 @@ namespace UEFASwissFormatSelector.Services
             var id = ExtractClubId_Club_PotName(str);
             return clubsInScenarioInstance.First( cisi => cisi.Club!.Id == id).Club!;
         }
-        private List<Guid> GetPossibleHomeOpponents(Dictionary<Guid, List<string>> fixedMatches, List<Guid> undecidedClubs, string potName)
+        private string HomeAwayString(bool home) => $"_{home}";
+        private List<Guid> GetPossiblePotHomeOpponents(Dictionary<Guid, List<string>> fixedMatches, string opponemtPotName, Guid clubId, int maxHomeMatch)
         {
-            return default;
+            var possibleHomeOpponents = new List<Guid>();
+            var clubFixtures = fixedMatches[clubId];
+            if (clubFixtures != null)
+            {
+                var clubPotFixture = clubFixtures.Where(f_str => f_str.EndsWith(GenerateClubPotName(null, opponemtPotName))).ToList();
+                if (clubPotFixture != null)
+                {
+                    foreach (var clubFixture in clubFixtures)
+                    {
+                        var opponentClubId = ExtractClubId_Club_PotName(clubFixture);
+                        var opponentFixtures = fixedMatches[opponentClubId];
+                        int opponentAwayMatch = opponentFixtures.Where( fix => fix.EndsWith(HomeAwayString(false)) ).Count();
+                        if (opponentAwayMatch < maxHomeMatch)
+                            possibleHomeOpponents.Add(opponentClubId);
+                    }
+                }
+                //which of this games from this pot can be played at home
+            }
+            return possibleHomeOpponents;
         }
         private List<Guid> SelectHomeOpponents(List<Guid> clubsId, int target)
         {
