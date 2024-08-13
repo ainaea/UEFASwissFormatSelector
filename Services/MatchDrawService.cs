@@ -389,7 +389,6 @@ namespace UEFASwissFormatSelector.Services
                             possibleHomeOpponents.Add(opponentClubId);
                     }
                 }
-                //which of this games from this pot can be played at home
             }
             return possibleHomeOpponents;
         }
@@ -417,7 +416,17 @@ namespace UEFASwissFormatSelector.Services
         }
         private Dictionary<Guid, List<string>> UpdateFixedMatches(Dictionary<Guid, List<string>> fixedMatches, Guid clubId, List<Guid> selectedHomeOpponents)
         {
-            return default;
+            foreach (var selectedHomeOpponent in selectedHomeOpponents)
+            {
+                var homeFixture = fixedMatches[clubId].First(fix => fix.Contains(selectedHomeOpponent.ToString()));
+                var homeFixtureIndex = fixedMatches[clubId].IndexOf(homeFixture);
+                fixedMatches[clubId][homeFixtureIndex] = $"{homeFixture}{HomeAwayString(true)}";
+
+                var awayFixture = fixedMatches[selectedHomeOpponent].First(fix => fix.Contains(clubId.ToString()));
+                var awayFixtureIndex = fixedMatches[selectedHomeOpponent].IndexOf(awayFixture);
+                fixedMatches[selectedHomeOpponent][awayFixtureIndex] = $"{awayFixture}{HomeAwayString(false)}";
+            }
+            return fixedMatches;
         }
     }
 }
