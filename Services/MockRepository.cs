@@ -115,7 +115,7 @@ namespace UEFASwissFormatSelector.Services
             {
                 new Scenario{ Name = "UEFA2425", Id = new Guid("c5300dfa-f995-4bb3-9e2e-009b85752995"), NumberOfPot = 4, NumberOfTeamsPerPot = 9, NumberOfGamesPerPot = 2},
                 new Scenario{ Name = "EPL", Id = new Guid("d5300dfa-f995-4bb3-9e2e-009b85752995"), NumberOfPot = 1, NumberOfTeamsPerPot = 20, NumberOfGamesPerPot = 19, HomeAndAwayPerOpponent = true},
-                new Scenario{ Name = "3-2-1", Id = new Guid("92944679-54a6-4248-9bf8-e50e0774dedc"), NumberOfPot = 1, NumberOfTeamsPerPot = 3, NumberOfGamesPerPot = 2},
+                new Scenario{ Name = "4-2-2", Id = new Guid("92944679-54a6-4248-9bf8-e50e0774dedc"), NumberOfPot = 2, NumberOfTeamsPerPot = 4, NumberOfGamesPerPot = 2},
                 new Scenario{ Name = "3-2-4", Id = new Guid("e2e36700-16f6-44de-a5c3-6acf484655c3"), NumberOfPot = 4, NumberOfTeamsPerPot = 3, NumberOfGamesPerPot = 2}
             };
         }
