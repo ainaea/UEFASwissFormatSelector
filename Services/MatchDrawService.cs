@@ -329,7 +329,23 @@ namespace UEFASwissFormatSelector.Services
             if (fixedMatches.Any(kvp => kvp.Value.Count > expectedMatchCount))
                 Console.Write("Hello");
 
-            return fixedMatchesFull;
+            if (!scenarioInstance.Scenario.HomeAndAwayPerOpponent)
+            {
+                int minHomeMatchCount = scenarioInstance.Scenario.NumberOfGamesPerPot / 2;
+                int maxHomeMatchCount = minHomeMatchCount + scenarioInstance.Scenario.NumberOfGamesPerPot % 2;
+                foreach (var kvp in fixedMatches)
+                {
+                    string kvpPot = GetClubPotName(kvp.Key, scenarioInstance.Pots);
+                    foreach (String potName in potNames)
+                    {
+                        var possiblePotHomeOpponent = GetPossiblePotHomeOpponents(fixedMatches, potName, kvp.Key, maxHomeMatchCount, kvpPot);
+                        var selectedHomeOpponents = SelectHomeOpponents(possiblePotHomeOpponent, minHomeMatchCount);
+                        fixedMatches = UpdateFixedMatches(fixedMatches, kvp.Key, selectedHomeOpponents, potName);
+                    }
+                }
+            }            
+
+                return fixedMatchesFull;
         }
         private int FoundedOpponentsInPot(string potName, Guid clubId, Dictionary<Guid, List<string>> fixedMatches)
         {
@@ -371,20 +387,20 @@ namespace UEFASwissFormatSelector.Services
             return clubsInScenarioInstance.First( cisi => cisi.Club!.Id == id).Club!;
         }
         private string HomeAwayString(bool home) => $"_{home}";
-        private List<Guid> GetPossiblePotHomeOpponents(Dictionary<Guid, List<string>> fixedMatches, string opponemtPotName, Guid clubId, int maxHomeMatch)
+        private List<Guid> GetPossiblePotHomeOpponents(Dictionary<Guid, List<string>> fixedMatches, string opponemtPotName, Guid clubId, int maxHomeMatch, string clubPotName)
         {
             var possibleHomeOpponents = new List<Guid>();
             var clubFixtures = fixedMatches[clubId];
             if (clubFixtures != null)
             {
-                var clubPotFixture = clubFixtures.Where(f_str => f_str.EndsWith(GenerateClubPotName(null, opponemtPotName))).ToList();
-                if (clubPotFixture != null)
+                var clubPotFixture = clubFixtures.Where(f_str => f_str.EndsWith(GenerateClubPotName(null, opponemtPotName)) ).ToList();
+                if (clubPotFixture.Any())
                 {
-                    foreach (var clubFixture in clubFixtures)
+                    foreach (var clubFixture in clubPotFixture)
                     {
                         var opponentClubId = ExtractClubId_Club_PotName(clubFixture);
                         var opponentFixtures = fixedMatches[opponentClubId];
-                        int opponentAwayMatch = opponentFixtures.Where( fix => fix.EndsWith(HomeAwayString(false)) ).Count();
+                        int opponentAwayMatch = opponentFixtures.Where( fix => fix.EndsWith(HomeAwayString(false)) && fix.Split(GenerateClubPotName(null, string.Empty))[1] == clubPotName).Count();
                         if (opponentAwayMatch < maxHomeMatch)
                             possibleHomeOpponents.Add(opponentClubId);
                     }
@@ -414,7 +430,7 @@ namespace UEFASwissFormatSelector.Services
                 return opponents;
             }
         }
-        private Dictionary<Guid, List<string>> UpdateFixedMatches(Dictionary<Guid, List<string>> fixedMatches, Guid clubId, List<Guid> selectedHomeOpponents)
+        private Dictionary<Guid, List<string>> UpdateFixedMatches(Dictionary<Guid, List<string>> fixedMatches, Guid clubId, List<Guid> selectedHomeOpponents, string potName)
         {
             foreach (var selectedHomeOpponent in selectedHomeOpponents)
             {
@@ -426,6 +442,23 @@ namespace UEFASwissFormatSelector.Services
                 var awayFixtureIndex = fixedMatches[selectedHomeOpponent].IndexOf(awayFixture);
                 fixedMatches[selectedHomeOpponent][awayFixtureIndex] = $"{awayFixture}{HomeAwayString(false)}";
             }
+            //assign unselected club pot fixtures to be played away
+            var undecidedClubFixtures = fixedMatches[clubId].Where(fix => fix.Split("_").Count() < 3 && fix.Split(GenerateClubPotName(null, string.Empty))[1] == potName);
+            if (undecidedClubFixtures != null)
+            {
+                var awayOpponents = undecidedClubFixtures.Select(fix => ExtractClubId_Club_PotName(fix)).ToList();
+                foreach (var awayOpponent in awayOpponents)
+                {
+                    var awayFixture = fixedMatches[clubId].First(fix => fix.Contains(awayOpponent.ToString()));
+                    var awayFixtureIndex = fixedMatches[clubId].IndexOf(awayFixture);
+                    fixedMatches[clubId][awayFixtureIndex] = $"{awayFixture}{HomeAwayString(false)}";
+
+                    var homeFixture = fixedMatches[awayOpponent].First(fix => fix.Contains(clubId.ToString()));
+                    var homeFixtureIndex = fixedMatches[awayOpponent].IndexOf(homeFixture);
+                    fixedMatches[awayOpponent][homeFixtureIndex] = $"{homeFixture}{HomeAwayString(true)}";
+                }
+            }
+
             return fixedMatches;
         }
     }
