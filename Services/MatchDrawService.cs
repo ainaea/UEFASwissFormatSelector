@@ -340,7 +340,7 @@ namespace UEFASwissFormatSelector.Services
                     {
                         var possiblePotHomeOpponent = GetPossiblePotHomeOpponents(fixedMatches, potName, kvp.Key, maxHomeMatchCount, kvpPot);
                         var selectedHomeOpponents = SelectHomeOpponents(possiblePotHomeOpponent, minHomeMatchCount);
-                        fixedMatches = UpdateFixedMatches(fixedMatches, kvp.Key, selectedHomeOpponents, potName);
+                        fixedMatches = UpdateFixedMatchesLocation(fixedMatches, kvp.Key, selectedHomeOpponents, potName);
                     }
                 }
             }            
@@ -430,7 +430,7 @@ namespace UEFASwissFormatSelector.Services
                 return opponents;
             }
         }
-        private Dictionary<Guid, List<string>> UpdateFixedMatches(Dictionary<Guid, List<string>> fixedMatches, Guid clubId, List<Guid> selectedHomeOpponents, string potName)
+        private Dictionary<Guid, List<string>> UpdateFixedMatchesLocation(Dictionary<Guid, List<string>> fixedMatches, Guid clubId, List<Guid> selectedHomeOpponents, string potName)
         {
             foreach (var selectedHomeOpponent in selectedHomeOpponents)
             {
