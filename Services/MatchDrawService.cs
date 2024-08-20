@@ -114,7 +114,7 @@ namespace UEFASwissFormatSelector.Services
             }
 
         }
-        public Dictionary<Guid, List<Club>> DoMatchUps(ScenarioInstance scenarioInstance, int numberOfOpponentPerPot)
+        public /*Dictionary<Guid, List<Club>>*/ (Dictionary<Guid, List<Club>>, Dictionary<Guid, List<string>>) DoMatchUps(ScenarioInstance scenarioInstance, int numberOfOpponentPerPot)
         {
             Dictionary<Guid, List<string>> fixedMatches = new Dictionary<Guid, List<string>>();     //Guid is for clubId and string is the concatination of format "opponentCludId_potname"
             Dictionary<Guid, List<Club>> fixedMatchesFull = new Dictionary<Guid, List<Club>>();
@@ -343,9 +343,10 @@ namespace UEFASwissFormatSelector.Services
                         fixedMatches = UpdateFixedMatchesLocation(fixedMatches, kvp.Key, selectedHomeOpponents, potName);
                     }
                 }
-            }            
+            }
+            return (fixedMatchesFull, fixedMatches);
 
-                return fixedMatchesFull;
+                //return fixedMatchesFull;
         }
         private int FoundOpponentsInPot(string potName, Guid clubId, Dictionary<Guid, List<string>> fixedMatches)
         {

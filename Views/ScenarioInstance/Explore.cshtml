@@ -157,7 +157,7 @@ else
                         <tr>
                             <td>@(i++)</td>
                             <td>@cip.Club?.Name</td>
-                            <td>@string.Join(", ", opponents.Select(club => $"{club.Name} ({club.Country?.Abbrevation}_{Model.Pots.FirstOrDefault(p => p.ClubsInPot.Any(c => c.ClubId == club.Id))?.Name})").ToList())</td>
+                            <td>@string.Join(", ", opponents.Select(club => $"{club.Name} ({club.Country?.Abbrevation}_{Model.Pots.FirstOrDefault(p => p.ClubsInPot.Any(c => c.ClubId == club.Id))?.Name}) ({Model.GetFixtureLocation( Model.MatchUpSkeleton?[cip.ClubId][Model.MatchUps[cip.ClubId].IndexOf(club)].Split('_')[2]) }) ").ToList())</td>
                             <td>
                                 @opponents.ToList().Count()
                             </td>

@@ -13,6 +13,11 @@ namespace UEFASwissFormatSelector.ViewModels
         public bool MatchupsCanBeDecided { get => !ClubOpponentsNotGenerated && ClubOpponentsCanBeGenerated; }
         public bool MatchupsNotDecided { get=> Opponents != null && MatchUps == null; }
         public bool CanDisplayMatchUp { get=> MatchUps != null; }
+        public string? GetFixtureLocation(string? fixtureBool)
+        {
+            if (fixtureBool == null) return null;
+            return fixtureBool == true.ToString() ? "Home" : "Away";
+        }
         //Teams
         //Pots
         //Matches

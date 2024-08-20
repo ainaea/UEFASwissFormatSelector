@@ -8,6 +8,7 @@
         public virtual IEnumerable<ClubInScenarioInstance> ClubsInScenarioInstance { get; set; }
         public Dictionary<Guid, IEnumerable<Pot>>? Opponents { get; set; }
         public Dictionary<Guid, List<Club>>? MatchUps { get; set; }
+        public Dictionary<Guid, List<String>>? MatchUpSkeleton { get; set; }
         public ScenarioInstance(Scenario scenario)
         {
             Scenario = scenario;
