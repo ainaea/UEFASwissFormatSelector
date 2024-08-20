@@ -137,7 +137,7 @@ namespace UEFASwissFormatSelector.Services
                         string clubPotName = GetClubPotName(thisClub.Id, scenarioInstance.Pots);
                         foreach (var oppositionPot in clubDictionary.Value.Where(p => p.ClubsInPot.Count() == i))
                         {
-                            int remainingOpponents = numberOfOpponentPerPot - FoundedOpponentsInPot(oppositionPot.Name, thisClub.Id, fixedMatches);
+                            int remainingOpponents = numberOfOpponentPerPot - FoundOpponentsInPot(oppositionPot.Name, thisClub.Id, fixedMatches);
                             if (remainingOpponents <= 0)
                                 continue;
 
@@ -347,7 +347,7 @@ namespace UEFASwissFormatSelector.Services
 
                 return fixedMatchesFull;
         }
-        private int FoundedOpponentsInPot(string potName, Guid clubId, Dictionary<Guid, List<string>> fixedMatches)
+        private int FoundOpponentsInPot(string potName, Guid clubId, Dictionary<Guid, List<string>> fixedMatches)
         {
             //returns the number of opponents a club as found/booked for match in a pot
             return fixedMatches[clubId].Where(fm => fm.Contains(potName)).Count();
