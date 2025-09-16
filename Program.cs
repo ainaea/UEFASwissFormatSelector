@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using UEFASwissFormatSelector.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -5,6 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddSingleton<IRepository, MockRepository>();
 builder.Services.AddSingleton<IMatchDrawService, MatchDrawService>();
+builder.Services.AddDbContextPool<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("UEFAConnection")));
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
