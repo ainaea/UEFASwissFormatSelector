@@ -20,7 +20,7 @@
                     <input asp-for="@Model[i].Club" class="form-control" hidden />
                     <input asp-for="@Model[i].ScenarioInstanceId" class="form-control" hidden />
                     <input asp-for="@Model[i].ScenarioInstance" class="form-control" hidden />
-                    <input asp-for="@Model[i].!Club.Name" hidden />
+                    <input asp-for="@Model[i].Club.Name" hidden />
                     <td>@(i+1)</td>
                     <td>@(Model[i].Club?.Name)</td>
                     <td><input asp-for="@Model[i].Ranking" /></td>                    
