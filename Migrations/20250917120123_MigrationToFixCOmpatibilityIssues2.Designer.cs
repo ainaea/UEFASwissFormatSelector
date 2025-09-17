@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using UEFASwissFormatSelector.Services;
 
@@ -11,9 +12,11 @@ using UEFASwissFormatSelector.Services;
 namespace UEFASwissFormatSelector.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250917120123_MigrationToFixCOmpatibilityIssues2")]
+    partial class MigrationToFixCOmpatibilityIssues2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -48,265 +51,265 @@ namespace UEFASwissFormatSelector.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("742bf86e-4f43-4465-9872-34f9b1281f8a"),
+                            Id = new Guid("a74395e6-e939-40aa-8a2f-efd604994266"),
                             CountryId = new Guid("a5300dfa-f995-4bb3-9e2e-009b85752995"),
                             Name = "Manchester City"
                         },
                         new
                         {
-                            Id = new Guid("752bf86e-4f43-4465-9872-34f9b1281f8a"),
+                            Id = new Guid("973bcfff-6590-4ae2-be25-903ecd671d69"),
                             CountryId = new Guid("a5300dfa-f995-4bb3-9e2e-009b85752995"),
                             Name = "Liverpool"
                         },
                         new
                         {
-                            Id = new Guid("762bf86e-4f43-4465-9872-34f9b1281f8a"),
+                            Id = new Guid("de5879a2-fc11-4229-bd95-f6489a9d981d"),
                             CountryId = new Guid("a5300dfa-f995-4bb3-9e2e-009b85752995"),
                             Name = "Arsenal"
                         },
                         new
                         {
-                            Id = new Guid("772bf86e-4f43-4465-9872-34f9b1281f8a"),
+                            Id = new Guid("15da069d-c1b9-4fe9-ab58-26d34bfa08d5"),
                             CountryId = new Guid("a5300dfa-f995-4bb3-9e2e-009b85752995"),
                             Name = "Manchester United"
                         },
                         new
                         {
-                            Id = new Guid("782bf86e-4f43-4465-9872-34f9b1281f8a"),
+                            Id = new Guid("8d09a2c1-e055-4a3f-b1d7-29e8171cc0ce"),
                             CountryId = new Guid("a5300dfa-f995-4bb3-9e2e-009b85752995"),
                             Name = "Newcastle United"
                         },
                         new
                         {
-                            Id = new Guid("792bf86e-4f43-4465-9872-34f9b1281f8a"),
+                            Id = new Guid("d3cc2cb7-2560-4195-ac31-fda22292e91d"),
                             CountryId = new Guid("a5300dfa-f995-4bb3-9e2e-009b85752995"),
                             Name = "West Ham United"
                         },
                         new
                         {
-                            Id = new Guid("802bf86e-4f43-4465-9872-34f9b1281f8a"),
+                            Id = new Guid("c0c33017-b8f3-47f9-8ea1-60a3e64f3f85"),
                             CountryId = new Guid("a5300dfa-f995-4bb3-9e2e-009b85752995"),
                             Name = "Aston Villa"
                         },
                         new
                         {
-                            Id = new Guid("812bf86e-4f43-4465-9872-34f9b1281f8a"),
+                            Id = new Guid("d2cdcf1a-9857-41ba-88bb-71efab4442b5"),
                             CountryId = new Guid("8bb21cd3-572c-4392-bf4d-29aa4cf58b06"),
                             Name = "Real Madrid"
                         },
                         new
                         {
-                            Id = new Guid("822bf86e-4f43-4465-9872-34f9b1281f8a"),
+                            Id = new Guid("8532e0ae-b786-4c81-ad21-1c5c8c9217ee"),
                             CountryId = new Guid("8bb21cd3-572c-4392-bf4d-29aa4cf58b06"),
                             Name = "Barcelona"
                         },
                         new
                         {
-                            Id = new Guid("832bf86e-4f43-4465-9872-34f9b1281f8a"),
+                            Id = new Guid("13ed621c-ec2f-4b89-b52a-c9e25e480a61"),
                             CountryId = new Guid("8bb21cd3-572c-4392-bf4d-29aa4cf58b06"),
                             Name = "Atlético Madrid"
                         },
                         new
                         {
-                            Id = new Guid("842bf86e-4f43-4465-9872-34f9b1281f8a"),
+                            Id = new Guid("89b219fb-f09f-4c86-90df-10699016ee90"),
                             CountryId = new Guid("8bb21cd3-572c-4392-bf4d-29aa4cf58b06"),
                             Name = "Sevilla"
                         },
                         new
                         {
-                            Id = new Guid("852bf86e-4f43-4465-9872-34f9b1281f8a"),
+                            Id = new Guid("08b44704-e461-49a3-92f9-f598d56a71f7"),
                             CountryId = new Guid("8bb21cd3-572c-4392-bf4d-29aa4cf58b06"),
                             Name = "Real Sociedad"
                         },
                         new
                         {
-                            Id = new Guid("862bf86e-4f43-4465-9872-34f9b1281f8a"),
+                            Id = new Guid("864379ac-8249-4ccb-b2f9-dde73df08554"),
                             CountryId = new Guid("8bb21cd3-572c-4392-bf4d-29aa4cf58b06"),
                             Name = "Villarreal"
                         },
                         new
                         {
-                            Id = new Guid("872bf86e-4f43-4465-9872-34f9b1281f8a"),
+                            Id = new Guid("c1c6d0dc-55ef-4eae-8907-1c99bc405664"),
                             CountryId = new Guid("6321ef33-73b5-45f8-9927-9afb37f39844"),
                             Name = "Bayern Munich"
                         },
                         new
                         {
-                            Id = new Guid("882bf86e-4f43-4465-9872-34f9b1281f8a"),
+                            Id = new Guid("df25b4d0-9880-4aa2-b505-9ceaed12601d"),
                             CountryId = new Guid("6321ef33-73b5-45f8-9927-9afb37f39844"),
                             Name = "Borussia Dortmund"
                         },
                         new
                         {
-                            Id = new Guid("892bf86e-4f43-4465-9872-34f9b1281f8a"),
+                            Id = new Guid("73f7125f-2a8c-4ff7-aa95-86cc25f42e5d"),
                             CountryId = new Guid("6321ef33-73b5-45f8-9927-9afb37f39844"),
                             Name = "Bayer Leverkusen"
                         },
                         new
                         {
-                            Id = new Guid("902bf86e-4f43-4465-9872-34f9b1281f8a"),
+                            Id = new Guid("b75abe7e-6195-419f-ac17-fb77c67ce0b3"),
                             CountryId = new Guid("6321ef33-73b5-45f8-9927-9afb37f39844"),
                             Name = "Union Berlin"
                         },
                         new
                         {
-                            Id = new Guid("912bf86e-4f43-4465-9872-34f9b1281f8a"),
+                            Id = new Guid("b19cc21e-0c4a-4445-acdb-367543c17a95"),
                             CountryId = new Guid("6321ef33-73b5-45f8-9927-9afb37f39844"),
                             Name = "RB Leipzig"
                         },
                         new
                         {
-                            Id = new Guid("922bf86e-4f43-4465-9872-34f9b1281f8a"),
+                            Id = new Guid("4a9b0d26-ba63-4e78-8587-e696c82e4378"),
                             CountryId = new Guid("5dcf05a0-aeec-487e-bab1-10a4b4913ef3"),
                             Name = "Inter Milan"
                         },
                         new
                         {
-                            Id = new Guid("932bf86e-4f43-4465-9872-34f9b1281f8a"),
+                            Id = new Guid("b7d07a52-fc63-4202-ae36-f38ef86c0e9e"),
                             CountryId = new Guid("5dcf05a0-aeec-487e-bab1-10a4b4913ef3"),
                             Name = "Juventus"
                         },
                         new
                         {
-                            Id = new Guid("942bf86e-4f43-4465-9872-34f9b1281f8a"),
+                            Id = new Guid("0e423654-f6e0-4c28-b905-c2951dc67e3b"),
                             CountryId = new Guid("5dcf05a0-aeec-487e-bab1-10a4b4913ef3"),
                             Name = "AC Milan"
                         },
                         new
                         {
-                            Id = new Guid("952bf86e-4f43-4465-9872-34f9b1281f8a"),
+                            Id = new Guid("8c23249c-23c0-4e84-8cc1-bedc5c85e270"),
                             CountryId = new Guid("5dcf05a0-aeec-487e-bab1-10a4b4913ef3"),
                             Name = "Napoli"
                         },
                         new
                         {
-                            Id = new Guid("962bf86e-4f43-4465-9872-34f9b1281f8a"),
+                            Id = new Guid("07033692-a604-4875-9cab-780419027610"),
                             CountryId = new Guid("5dcf05a0-aeec-487e-bab1-10a4b4913ef3"),
                             Name = "Roma"
                         },
                         new
                         {
-                            Id = new Guid("972bf86e-4f43-4465-9872-34f9b1281f8a"),
+                            Id = new Guid("9ba6bc16-299b-45b7-b208-80986360f8aa"),
                             CountryId = new Guid("5dcf05a0-aeec-487e-bab1-10a4b4913ef3"),
                             Name = "Lazio"
                         },
                         new
                         {
-                            Id = new Guid("982bf86e-4f43-4465-9872-34f9b1281f8a"),
+                            Id = new Guid("f7c5d1c9-ae1e-4ba1-81ce-b9a488a9690f"),
                             CountryId = new Guid("6661ef33-73b5-45f8-9927-9bfb37f39844"),
                             Name = "Olympique de Marseille"
                         },
                         new
                         {
-                            Id = new Guid("992bf86e-4f43-4465-9872-34f9b1281f8a"),
+                            Id = new Guid("13f97579-6783-4a42-a6de-a868ecc62962"),
                             CountryId = new Guid("6661ef33-73b5-45f8-9927-9bfb37f39844"),
                             Name = "Paris Saint-Germain"
                         },
                         new
                         {
-                            Id = new Guid("002bf86e-4f43-4465-9872-34f9b1281f8a"),
+                            Id = new Guid("139e089d-481c-47d8-b5b7-099c3af8137d"),
                             CountryId = new Guid("6661ef33-73b5-45f8-9927-9bfb37f39844"),
                             Name = "Lyon"
                         },
                         new
                         {
-                            Id = new Guid("012bf86e-4f43-4465-9872-34f9b1281f8a"),
+                            Id = new Guid("07d12192-1324-4e89-b7fd-787f25312f6f"),
                             CountryId = new Guid("6661ef33-73b5-45f8-9927-9bfb37f39844"),
                             Name = "Monaco"
                         },
                         new
                         {
-                            Id = new Guid("022bf86e-4f43-4465-9872-34f9b1281f8a"),
+                            Id = new Guid("9b6cb67b-9c66-463c-b990-1b17e0730c25"),
                             CountryId = new Guid("6661ef33-73b5-45f8-9927-9bfb37f39855"),
                             Name = "Benfica"
                         },
                         new
                         {
-                            Id = new Guid("032bf86e-4f43-4465-9872-34f9b1281f8a"),
+                            Id = new Guid("d1860380-b541-422e-a5df-ce9c0bd0d652"),
                             CountryId = new Guid("6661ef33-73b5-45f8-9927-9bfb37f39855"),
                             Name = "Porto"
                         },
                         new
                         {
-                            Id = new Guid("042bf86e-4f43-4465-9872-34f9b1281f8a"),
+                            Id = new Guid("6a9f5c29-4d50-4328-9a00-2bdb61af1cf3"),
                             CountryId = new Guid("6661ef33-73b5-45f8-9927-9bfb37f39855"),
                             Name = "Sporting CP"
                         },
                         new
                         {
-                            Id = new Guid("052bf86e-4f43-4465-9872-34f9b1281f8a"),
+                            Id = new Guid("a212c5fd-079f-4d40-86b3-4ca4fc44f92d"),
                             CountryId = new Guid("6661ef33-73b5-45f8-9927-9bfb37f39866"),
                             Name = "Ajax"
                         },
                         new
                         {
-                            Id = new Guid("062bf86e-4f43-4465-9872-34f9b1281f8a"),
+                            Id = new Guid("4c7d8449-ccfc-4a8c-9c4c-9f2f187586b9"),
                             CountryId = new Guid("6661ef33-73b5-45f8-9927-9bfb37f39866"),
                             Name = "Feyenoord"
                         },
                         new
                         {
-                            Id = new Guid("072bf86e-4f43-4465-9872-34f9b1281f8a"),
+                            Id = new Guid("19427952-3dd3-4d13-92cd-9bf7c8762da0"),
                             CountryId = new Guid("6661ef33-73b5-45f8-9927-9bfb37f39877"),
                             Name = "Celtic"
                         },
                         new
                         {
-                            Id = new Guid("082bf86e-4f43-4465-9872-34f9b1281f8a"),
+                            Id = new Guid("19ee40ca-911a-4a58-a755-25a20c35d523"),
                             CountryId = new Guid("6661ef33-73b5-45f8-9927-9bfb37f39888"),
                             Name = "Shakhtar Donetsk"
                         },
                         new
                         {
-                            Id = new Guid("092bf86e-4f43-4465-9872-34f9b1281f8a"),
+                            Id = new Guid("4ea73390-b63a-4963-b80c-8f371970ff52"),
                             CountryId = new Guid("6661ef33-73b5-45f8-9927-9bfb37f39899"),
                             Name = "Galatasaray"
                         },
                         new
                         {
-                            Id = new Guid("102bf86e-4f43-4465-9872-34f9b1281f8a"),
+                            Id = new Guid("fafb12ef-428a-4e51-801e-5da10e5f5452"),
                             CountryId = new Guid("1661ef33-73b5-45f8-9927-9bfb37f39866"),
                             Name = "Red Star Belgrade"
                         },
                         new
                         {
-                            Id = new Guid("112bf86e-4f43-4465-9872-34f9b1281f8a"),
+                            Id = new Guid("2cd8961f-8275-44af-92fd-989205388336"),
                             CountryId = new Guid("1661ef33-73b5-45f8-9927-9bfb37f39877"),
                             Name = "Dinamo Zagreb"
                         },
                         new
                         {
-                            Id = new Guid("122bf86e-4f43-4465-9872-34f9b1281f8a"),
+                            Id = new Guid("652f6e93-391f-4df5-b4e4-d51d6c51906c"),
                             CountryId = new Guid("1661ef33-73b5-45f8-9927-9bfb37f39888"),
                             Name = "Olympiacos"
                         },
                         new
                         {
-                            Id = new Guid("132bf86e-4f43-4465-9872-34f9b1281f8a"),
+                            Id = new Guid("9ad7e6cc-74d1-43b2-9765-63d3878c14e4"),
                             CountryId = new Guid("1661ef33-73b5-45f8-9927-9bfb37f39899"),
                             Name = "Club Brugge"
                         },
                         new
                         {
-                            Id = new Guid("142bf86e-4f43-4465-9872-34f9b1281f8a"),
+                            Id = new Guid("d56d16c2-c850-4e30-887e-eab5b027ca32"),
                             CountryId = new Guid("2661ef33-73b5-45f8-9927-9bfb37f39899"),
                             Name = "Copenhagen"
                         },
                         new
                         {
-                            Id = new Guid("152bf86e-4f43-4465-9872-34f9b1281f8a"),
+                            Id = new Guid("be0fa8d0-fb78-4140-b1a6-4a8bd4471c6b"),
                             CountryId = new Guid("1691ef33-73b5-45f8-9927-9bfb37f39899"),
                             Name = "Red Bull Salzburg"
                         },
                         new
                         {
-                            Id = new Guid("162bf86e-4f43-4465-9872-34f9b1281f8a"),
+                            Id = new Guid("16aeb5fa-a4d6-4dc7-94f5-e8de4a69878b"),
                             CountryId = new Guid("1661ef33-73b5-45f8-9927-9bfb37f39899"),
                             Name = "Genk"
                         },
                         new
                         {
-                            Id = new Guid("172bf86e-4f43-4465-9872-34f9b1281f8a"),
+                            Id = new Guid("af1c5950-27eb-4998-8358-1325f18a33b4"),
                             CountryId = new Guid("1961ef33-73b5-45f8-9927-9bfb37f39899"),
                             Name = "Sheriff Tiraspol"
                         });
