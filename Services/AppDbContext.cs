@@ -29,6 +29,11 @@ namespace UEFASwissFormatSelector.Services
 
             modelBuilder.SeedDBData();
 
+            foreach (var foreignKey in modelBuilder.Model.GetEntityTypes().SelectMany( t => t.GetForeignKeys() ))
+            {
+                foreignKey.DeleteBehavior = DeleteBehavior.Restrict;
+            }
+
             modelBuilder.Entity<ClubInPot>(Cips =>
             {
                 //cip.HasNoKey()
