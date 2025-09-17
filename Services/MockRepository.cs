@@ -34,7 +34,7 @@ namespace UEFASwissFormatSelector.Services
             _scenarios = SetupScenarios();
             _scenarioInstances = SetupScenarioInstances();
         }
-        private IEnumerable<Club> SetupClubs()
+        public static IEnumerable<Club> SetupClubs()
         {
             return new List<Club>
             {
@@ -85,7 +85,7 @@ namespace UEFASwissFormatSelector.Services
                 new Club{ Name = "Sheriff Tiraspol", CountryId = new Guid("1961ef33-73b5-45f8-9927-9bfb37f39899")},
             };
         }
-        private IEnumerable<Country> SetupCountries()
+        public static IEnumerable<Country> SetupCountries()
         {
             return new List<Country>
             {
@@ -109,7 +109,7 @@ namespace UEFASwissFormatSelector.Services
             };
         }
 
-        private IEnumerable<Scenario> SetupScenarios()
+        public static IEnumerable<Scenario> SetupScenarios()
         {
             return new List<Scenario>
             {

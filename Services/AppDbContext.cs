@@ -27,6 +27,8 @@ namespace UEFASwissFormatSelector.Services
             //    .WithMany(p => p.ClubsInPot)
             //    .HasForeignKey(cip => cip.PotId);
 
+            modelBuilder.SeedDBData();
+
             modelBuilder.Entity<ClubInPot>(Cips =>
             {
                 //cip.HasNoKey()
