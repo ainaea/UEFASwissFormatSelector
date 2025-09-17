@@ -11,5 +11,10 @@
             ClubId = clubId;
             PotId = potId;
         }
+
+        public ClubInPot()
+        {
+            
+        }
     }
 }

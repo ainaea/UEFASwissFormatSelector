@@ -9,5 +9,13 @@
             ClubsInPot = new ClubInPot[numberOfTeamsInPot];
             Name = name;
         }
+
+        /// <summary>
+        /// To be used only for db purpose
+        /// </summary>
+        public Pot()
+        {
+            
+        }
     }
 }
