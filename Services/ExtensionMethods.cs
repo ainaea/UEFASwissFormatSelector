@@ -8,8 +8,8 @@ namespace UEFASwissFormatSelector.Services
         public static void SeedDBData(this ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Country>().HasData( MockRepository.SetupCountries() );
-            modelBuilder.Entity<Club>().HasData(MockRepository.SetupClubs());
             modelBuilder.Entity<Scenario>().HasData(MockRepository.SetupScenarios());
+            modelBuilder.Entity<Club>().HasData(MockRepository.SetupClubs());
         }
     }
 }
