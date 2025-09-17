@@ -20,6 +20,7 @@ namespace UEFASwissFormatSelector.Services
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
             //modelBuilder.Entity<ClubInPot>(cip => cip.HasNoKey() );
             //modelBuilder.Entity<ClubInPot>()
             //    .HasOne(cip => cip.Pot)
