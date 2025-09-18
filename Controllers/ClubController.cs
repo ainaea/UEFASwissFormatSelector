@@ -14,7 +14,7 @@ namespace UEFASwissFormatSelector.Controllers
         [HttpGet]
         public IActionResult Index()
         {            
-            return View(_repository.Clubs);
+            return View(_repository.Clubs.OrderBy(c => c.Name));
         }
         [HttpGet]
         public IActionResult Add()
