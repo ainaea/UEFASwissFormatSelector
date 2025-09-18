@@ -26,7 +26,7 @@ else
                 </tr>
             </thead>
             <tbody>
-                @foreach (var club in Model.ClubsInScenarioInstance)
+                @foreach (var club in Model.ClubsInScenarioInstance.OrderByDescending(c => c.Ranking))
                 {
                     <tr>
                         <td>@(sn++)</td>
