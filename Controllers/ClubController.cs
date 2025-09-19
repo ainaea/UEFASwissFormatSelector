@@ -27,7 +27,7 @@ namespace UEFASwissFormatSelector.Controllers
         {
             if (ModelState.IsValid)
             {
-                (_repository.Clubs as List<Club>)?.Add(club);
+                _repository.Clubs.Add(club);
                 return RedirectToAction(nameof(Index));
             }
             ViewBag.Countries = _repository.Countries;
@@ -49,9 +49,7 @@ namespace UEFASwissFormatSelector.Controllers
         {
             if (ModelState.IsValid)
             {
-                var dbCLub = _repository.Clubs.FirstOrDefault(c => c.Id == club.Id);
-                if (dbCLub != null)
-                    (_repository.Clubs as List<Club>)![_repository.Clubs.ToList().IndexOf(dbCLub)] = club;
+                _repository.Clubs.Update(club);                
                 return RedirectToAction(nameof(Index));
             }
             ViewBag.Countries = _repository.Scenarios;

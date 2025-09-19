@@ -4,11 +4,11 @@ namespace UEFASwissFormatSelector.Services
 {
     public class MockRepository : IRepository
     {
-        private IEnumerable<Club> _clubs;
-        private IEnumerable<Country> _countries;
-        private IEnumerable<Scenario> _scenarios;
-        private IEnumerable<ScenarioInstance> _scenarioInstances;
-        public IEnumerable<Club> Clubs
+        private IUnitRepository<Club> _clubs;
+        private IUnitRepository<Country> _countries;
+        private IUnitRepository<Scenario> _scenarios;
+        private IUnitRepository<ScenarioInstance> _scenarioInstances;
+        public IUnitRepository<Club> Clubs
         {
             get
             {
@@ -24,9 +24,10 @@ namespace UEFASwissFormatSelector.Services
             set => _clubs = value;
         }
 
-        public IEnumerable<Country> Countries { get => _countries; set => _countries = value; }
-        public IEnumerable<Scenario> Scenarios { get => _scenarios; set => _scenarios = value; }
-        public IEnumerable<ScenarioInstance> ScenarioInstances { get => _scenarioInstances; set => _scenarioInstances = value; }
+        public IUnitRepository<Country> Countries { get => _countries; set => _countries = value; }
+        public IUnitRepository<Scenario> Scenarios { get => _scenarios; set => _scenarios = value; }
+        public IUnitRepository<ScenarioInstance> ScenarioInstances { get => _scenarioInstances; set => _scenarioInstances = value; }
+
         public MockRepository()
         {
             _clubs = SetupClubs();
@@ -34,9 +35,9 @@ namespace UEFASwissFormatSelector.Services
             _scenarios = SetupScenarios();
             _scenarioInstances = SetupScenarioInstances();
         }
-        public static IEnumerable<Club> SetupClubs()
+        public static MockUnitRepository<Club> SetupClubs()
         {
-            return new List<Club>
+            return new MockUnitRepository<Club>
             {
                 new Club{ Name = "Manchester City", CountryId = new Guid("a5300dfa-f995-4bb3-9e2e-009b85752995"), Id = new Guid("742bf86e-4f43-4465-9872-34f9b1281f8a")},
                 new Club{ Name = "Liverpool", CountryId = new Guid("a5300dfa-f995-4bb3-9e2e-009b85752995"), Id = new Guid("752bf86e-4f43-4465-9872-34f9b1281f8a")},
@@ -85,9 +86,9 @@ namespace UEFASwissFormatSelector.Services
                 new Club{ Name = "Sheriff Tiraspol", CountryId = new Guid("1961ef33-73b5-45f8-9927-9bfb37f39899"), Id = new Guid("172bf86e-4f43-4465-9872-34f9b1281f8a")},
             };
         }
-        public static IEnumerable<Country> SetupCountries()
+        public static MockUnitRepository<Country> SetupCountries()
         {
-            return new List<Country>
+            return new MockUnitRepository<Country>
             {
                 new Country{ Name = "England", Abbrevation = "ENG", Id = new Guid("a5300dfa-f995-4bb3-9e2e-009b85752995")},
                 new Country{ Name = "Italy", Abbrevation = "ITA", Id = new Guid("5dcf05a0-aeec-487e-bab1-10a4b4913ef3")},
@@ -109,9 +110,9 @@ namespace UEFASwissFormatSelector.Services
             };
         }
 
-        public static IEnumerable<Scenario> SetupScenarios()
+        public static MockUnitRepository<Scenario> SetupScenarios()
         {
-            return new List<Scenario>
+            return new MockUnitRepository<Scenario>
             {
                 new Scenario{ Name = "UEFA2425", Id = new Guid("c5300dfa-f995-4bb3-9e2e-009b85752995"), NumberOfPot = 4, NumberOfTeamsPerPot = 9, NumberOfGamesPerPot = 2},
                 new Scenario{ Name = "EPL", Id = new Guid("d5300dfa-f995-4bb3-9e2e-009b85752995"), NumberOfPot = 1, NumberOfTeamsPerPot = 20, NumberOfGamesPerPot = 19, HomeAndAwayPerOpponent = true},
@@ -119,9 +120,9 @@ namespace UEFASwissFormatSelector.Services
                 new Scenario{ Name = "3-2-4", Id = new Guid("e2e36700-16f6-44de-a5c3-6acf484655c3"), NumberOfPot = 4, NumberOfTeamsPerPot = 3, NumberOfGamesPerPot = 2}
             };
         }
-        private IEnumerable<ScenarioInstance> SetupScenarioInstances()
+        private MockUnitRepository<ScenarioInstance> SetupScenarioInstances()
         {
-            return new List<ScenarioInstance>();            
+            return new MockUnitRepository<ScenarioInstance>();            
         }
     }
 }

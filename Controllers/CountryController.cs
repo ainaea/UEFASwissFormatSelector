@@ -27,7 +27,7 @@ namespace UEFASwissFormatSelector.Controllers
         {
             if(ModelState.IsValid)
             {
-                (repository.Countries as List<Country>)?.Add(country);
+                repository.Countries.Add(country);
                 return RedirectToAction(nameof(Index));
             }
             return View(country);
@@ -45,9 +45,7 @@ namespace UEFASwissFormatSelector.Controllers
         {
             if (ModelState.IsValid)
             {
-                var dbCountry = repository.Countries.FirstOrDefault( c=> c.Id == country.Id);
-                if (dbCountry != null)
-                    (repository.Countries as List<Country>)![repository.Countries.ToList().IndexOf(dbCountry)] = country;
+                repository.Countries.Update(country);
                 return RedirectToAction(nameof(Index));
             }
             return View(country);

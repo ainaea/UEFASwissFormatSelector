@@ -42,7 +42,7 @@ namespace UEFASwissFormatSelector.Controllers
                 {
                     Name = instanceVM.Name
                 };
-                (repository.ScenarioInstances as List<ScenarioInstance>)?.Add(instance);
+                repository.ScenarioInstances.Add(instance);
                 return RedirectToAction(nameof(Index));
             }
             return View(instanceVM);
@@ -68,7 +68,10 @@ namespace UEFASwissFormatSelector.Controllers
             {
                 var scenarioInstance = repository.ScenarioInstances.FirstOrDefault(s => s.Id == instanceVM.InstanceId);
                 if (scenarioInstance != null)
+                {
                     scenarioInstance.Name = instanceVM.Name;
+                    repository.ScenarioInstances.Add(scenarioInstance);
+                }
                 return RedirectToAction(nameof(Index));
             }
             return View(instanceVM);

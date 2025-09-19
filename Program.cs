@@ -5,6 +5,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddSingleton<IRepository, MockRepository>();
+//builder.Services.AddScoped<IRepository, SqlRepository>();
 builder.Services.AddSingleton<IMatchDrawService, MatchDrawService>();
 builder.Services.AddDbContextPool<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("UEFAConnection")));
 builder.Services.AddControllersWithViews();

@@ -4,9 +4,9 @@ namespace UEFASwissFormatSelector.Services
 {
     public interface IRepository
     {
-        IEnumerable<Club> Clubs { get; set; }
-        IEnumerable<Country> Countries { get; set; }
-        IEnumerable<Scenario> Scenarios { get; set; }
-        IEnumerable<ScenarioInstance> ScenarioInstances { get; set; }
+        IUnitRepository<Club> Clubs { get; set; }
+        IUnitRepository<Country> Countries { get; set; }
+        IUnitRepository<Scenario> Scenarios { get; set; }
+        IUnitRepository<ScenarioInstance> ScenarioInstances { get; set; }
     }
 }

@@ -34,7 +34,7 @@ namespace UEFASwissFormatSelector.Controllers
                     ModelState.AddModelError("", "Similar scenario is already existing");
                     return View(scenario);
                 }
-                (repository.Scenarios as List<Scenario>)?.Add(scenario);
+                repository.Scenarios.Add(scenario);
                 return RedirectToAction(nameof(Index));
             }
             return View(scenario);
@@ -52,9 +52,7 @@ namespace UEFASwissFormatSelector.Controllers
         {
             if (ModelState.IsValid)
             {
-                var dbScenario = repository.Scenarios.FirstOrDefault(c => c.Id == scenario.Id);
-                if (dbScenario != null)
-                    dbScenario.Name = scenario.Name;
+                repository.Scenarios.Update(scenario);                
                 return RedirectToAction(nameof(Index));
             }
             return View(scenario);
