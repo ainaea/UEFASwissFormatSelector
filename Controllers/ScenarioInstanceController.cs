@@ -50,7 +50,7 @@ namespace UEFASwissFormatSelector.Controllers
         [HttpGet]
         public IActionResult Edit(Guid scenarioInstanceId)
         {
-            var scenarioInstance = repository.ScenarioInstances.FirstOrDefault(s => s.Id == scenarioInstanceId);
+            var scenarioInstance = repository.ScenarioInstances.Find(scenarioInstanceId);
             if (scenarioInstance == null)
                 return RedirectToAction(nameof(Index));
             var viewModel = new EditScenarioInstanceViewModel
@@ -66,7 +66,7 @@ namespace UEFASwissFormatSelector.Controllers
         {
             if (ModelState.IsValid)
             {
-                var scenarioInstance = repository.ScenarioInstances.FirstOrDefault(s => s.Id == instanceVM.InstanceId);
+                var scenarioInstance = repository.ScenarioInstances.Find(instanceVM.InstanceId);
                 if (scenarioInstance != null)
                 {
                     scenarioInstance.Name = instanceVM.Name;
@@ -96,7 +96,7 @@ namespace UEFASwissFormatSelector.Controllers
         //}
         public IActionResult Explore(Guid scenarioInstanceId)
         {
-            var scenarioInstance = repository.ScenarioInstances.FirstOrDefault(s => s.Id == scenarioInstanceId);
+            var scenarioInstance = repository.ScenarioInstances.Find(scenarioInstanceId);
             if (scenarioInstance == null)
                 return RedirectToAction(nameof(Index));
             var viewModel = new ExploreScenarioInstanceViewModel
@@ -140,7 +140,7 @@ namespace UEFASwissFormatSelector.Controllers
         [HttpGet]
         public IActionResult AddClubs(Guid scenarioInstanceId)
         {
-            var scenarioInstance = repository.ScenarioInstances.FirstOrDefault(s => s.Id == scenarioInstanceId);
+            var scenarioInstance = repository.ScenarioInstances.Find(scenarioInstanceId);
             if (scenarioInstance == null)
                 return RedirectToAction(nameof(Index));
             var viewModel = new List<SelectViewModel>();
@@ -160,7 +160,7 @@ namespace UEFASwissFormatSelector.Controllers
         {
             if (ModelState.IsValid)
             {
-                var scenarioInstance = repository.ScenarioInstances.FirstOrDefault(s => s.Id == scenarioInstanceId);
+                var scenarioInstance = repository.ScenarioInstances.Find(scenarioInstanceId);
                 if (scenarioInstance == null)
                     return RedirectToAction(nameof(Index));
                 var checkedSelections = selections.Where(s => s.IsSelected).ToList();
@@ -188,7 +188,7 @@ namespace UEFASwissFormatSelector.Controllers
         [HttpGet]
         public IActionResult RankClubs(Guid scenarioInstanceId)
         {
-            var scenarioInstance = repository.ScenarioInstances.FirstOrDefault(s => s.Id == scenarioInstanceId);
+            var scenarioInstance = repository.ScenarioInstances.Find(scenarioInstanceId);
             if (scenarioInstance == null)
                 return RedirectToAction(nameof(Index));
             ViewBag.scenarioInstanceId = scenarioInstanceId;
@@ -200,7 +200,7 @@ namespace UEFASwissFormatSelector.Controllers
         {
             if (ModelState.IsValid)
             {
-                var scenarioInstance = repository.ScenarioInstances.FirstOrDefault(s => s.Id == scenarioInstanceId);
+                var scenarioInstance = repository.ScenarioInstances.Find(scenarioInstanceId);
                 if (scenarioInstance == null)
                     return RedirectToAction(nameof(Index));
                 scenarioInstance.ClubsInScenarioInstance = model;
@@ -211,7 +211,7 @@ namespace UEFASwissFormatSelector.Controllers
         [HttpPost]
         public IActionResult PotClubs(IEnumerable<ClubInScenarioInstance> model, Guid scenarioInstanceId)
         {
-            var scenarioInstance = repository.ScenarioInstances.FirstOrDefault(s => s.Id == scenarioInstanceId);
+            var scenarioInstance = repository.ScenarioInstances.Find(scenarioInstanceId);
             if (scenarioInstance == null)
                 return RedirectToAction(nameof(Index));
             scenarioInstance.Pots = matchDrawService.PotTeam(scenarioInstance);
@@ -220,7 +220,7 @@ namespace UEFASwissFormatSelector.Controllers
         [HttpGet]
         public IActionResult GenerateOponents(Guid scenarioInstanceId)
         {
-            var scenarioInstance = repository.ScenarioInstances.FirstOrDefault(s => s.Id == scenarioInstanceId);
+            var scenarioInstance = repository.ScenarioInstances.Find(scenarioInstanceId);
             if (scenarioInstance == null)
                 return RedirectToAction(nameof(Index));
             var opponnentsDictionary = matchDrawService.GenerateOpponentsForAllClubs(scenarioInstance);
@@ -231,7 +231,7 @@ namespace UEFASwissFormatSelector.Controllers
         [HttpGet]
         public IActionResult ShowMatchUp(Guid scenarioInstanceId)
         {
-            var scenarioInstance = repository.ScenarioInstances.FirstOrDefault(s => s.Id == scenarioInstanceId);
+            var scenarioInstance = repository.ScenarioInstances.Find(scenarioInstanceId);
             if (scenarioInstance == null)
                 return RedirectToAction(nameof(Index));
             var matchUpResult = matchDrawService.DoMatchUps(scenarioInstance, scenarioInstance.Scenario.NumberOfGamesPerPot);

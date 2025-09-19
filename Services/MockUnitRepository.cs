@@ -27,6 +27,6 @@ namespace UEFASwissFormatSelector.Services
             {
                 (this as List<T>)![this.ToList().IndexOf(dbEntity)] = entity;
             }
-        }               
+        }        
     }
 }
