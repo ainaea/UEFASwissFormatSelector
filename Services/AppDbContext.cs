@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using UEFASwissFormatSelector.Models;
 
 namespace UEFASwissFormatSelector.Services
@@ -52,6 +53,25 @@ namespace UEFASwissFormatSelector.Services
                 .WithMany(si => si.ClubsInScenarioInstance)
                 .HasForeignKey(cisi => cisi.ScenarioInstanceId);
             });
+
+            //modelBuilder.Entity<ScenarioInstance>()
+            //            .Property(si => si.Opponents)
+            //            .HasConversion(
+            //                    v => JsonConvert.SerializeObject(v),
+            //                    v => JsonConvert.DeserializeObject<Dictionary<Guid, IEnumerable<Pot>>>(v));
+
+            //modelBuilder.Entity<ScenarioInstance>()
+            //            .Property(si => si.MatchUps)
+            //            .HasConversion(
+            //                    v => JsonConvert.SerializeObject(v),
+            //                    v => JsonConvert.DeserializeObject<Dictionary<Guid, List<Club>>>(v));
+
+            //modelBuilder.Entity<ScenarioInstance>()
+            //            .Property(si => si.MatchUpSkeleton)
+            //            .HasConversion(
+            //                    v => JsonConvert.SerializeObject(v),
+            //                    v => JsonConvert.DeserializeObject<Dictionary<Guid, List<string>>>(v));
+
         }
 
     }

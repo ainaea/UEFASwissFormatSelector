@@ -580,6 +580,57 @@ namespace UEFASwissFormatSelector.Migrations
                     b.ToTable("ScenarioInstances");
                 });
 
+            modelBuilder.Entity("UEFASwissFormatSelector.Services.ModifiedDictionary<System.Collections.Generic.IEnumerable<UEFASwissFormatSelector.Models.Pot>>", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ScenarioInstanceId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ScenarioInstanceId")
+                        .IsUnique();
+
+                    b.ToTable("ModifiedDictionary<IEnumerable<Pot>>");
+                });
+
+            modelBuilder.Entity("UEFASwissFormatSelector.Services.ModifiedDictionary<System.Collections.Generic.List<UEFASwissFormatSelector.Models.Club>>", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ScenarioInstanceId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ScenarioInstanceId")
+                        .IsUnique();
+
+                    b.ToTable("ModifiedDictionary<List<Club>>");
+                });
+
+            modelBuilder.Entity("UEFASwissFormatSelector.Services.ModifiedDictionary<System.Collections.Generic.List<string>>", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ScenarioInstanceId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ScenarioInstanceId")
+                        .IsUnique();
+
+                    b.ToTable("ModifiedDictionary<List<string>>");
+                });
+
             modelBuilder.Entity("UEFASwissFormatSelector.Models.Club", b =>
                 {
                     b.HasOne("UEFASwissFormatSelector.Models.Country", "Country")
@@ -649,6 +700,33 @@ namespace UEFASwissFormatSelector.Migrations
                     b.Navigation("Scenario");
                 });
 
+            modelBuilder.Entity("UEFASwissFormatSelector.Services.ModifiedDictionary<System.Collections.Generic.IEnumerable<UEFASwissFormatSelector.Models.Pot>>", b =>
+                {
+                    b.HasOne("UEFASwissFormatSelector.Models.ScenarioInstance", null)
+                        .WithOne("Opponents")
+                        .HasForeignKey("UEFASwissFormatSelector.Services.ModifiedDictionary<System.Collections.Generic.IEnumerable<UEFASwissFormatSelector.Models.Pot>>", "ScenarioInstanceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("UEFASwissFormatSelector.Services.ModifiedDictionary<System.Collections.Generic.List<UEFASwissFormatSelector.Models.Club>>", b =>
+                {
+                    b.HasOne("UEFASwissFormatSelector.Models.ScenarioInstance", null)
+                        .WithOne("MatchUps")
+                        .HasForeignKey("UEFASwissFormatSelector.Services.ModifiedDictionary<System.Collections.Generic.List<UEFASwissFormatSelector.Models.Club>>", "ScenarioInstanceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("UEFASwissFormatSelector.Services.ModifiedDictionary<System.Collections.Generic.List<string>>", b =>
+                {
+                    b.HasOne("UEFASwissFormatSelector.Models.ScenarioInstance", null)
+                        .WithOne("MatchUpSkeleton")
+                        .HasForeignKey("UEFASwissFormatSelector.Services.ModifiedDictionary<System.Collections.Generic.List<string>>", "ScenarioInstanceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("UEFASwissFormatSelector.Models.Pot", b =>
                 {
                     b.Navigation("ClubsInPot");
@@ -657,6 +735,12 @@ namespace UEFASwissFormatSelector.Migrations
             modelBuilder.Entity("UEFASwissFormatSelector.Models.ScenarioInstance", b =>
                 {
                     b.Navigation("ClubsInScenarioInstance");
+
+                    b.Navigation("MatchUpSkeleton");
+
+                    b.Navigation("MatchUps");
+
+                    b.Navigation("Opponents");
 
                     b.Navigation("Pots");
                 });

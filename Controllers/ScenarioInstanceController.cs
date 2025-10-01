@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using UEFASwissFormatSelector.Models;
 using UEFASwissFormatSelector.Services;
 using UEFASwissFormatSelector.ViewModels;
@@ -42,6 +43,11 @@ namespace UEFASwissFormatSelector.Controllers
                 {
                     Name = instanceVM.Name
                 };
+                //var ss = new Dictionary<int, string>();
+                //ss.Add(0, instance.Name);
+                //ss.Add(1, "hello");
+                //return Ok(ss);
+                //return Ok(instance);
                 repository.ScenarioInstances.Add(instance);
                 return RedirectToAction(nameof(Index));
             }
@@ -99,6 +105,8 @@ namespace UEFASwissFormatSelector.Controllers
             var scenarioInstance = repository.ScenarioInstances.Find(scenarioInstanceId);
             if (scenarioInstance == null)
                 return RedirectToAction(nameof(Index));
+            scenarioInstance.Pots ??= new Pot[scenarioInstance.Scenario.NumberOfPot];
+            scenarioInstance.ClubsInScenarioInstance ??= new ClubInScenarioInstance[scenarioInstance.Scenario.NumberOfPot * scenarioInstance.Scenario.NumberOfTeamsPerPot];
             var viewModel = new ExploreScenarioInstanceViewModel
             {
                 Id = scenarioInstance.Id,
@@ -181,6 +189,7 @@ namespace UEFASwissFormatSelector.Controllers
                     });
                 }
                 scenarioInstance.ClubsInScenarioInstance = clubsInInstance;
+                repository.ScenarioInstances.Update(scenarioInstance);
                 return RedirectToAction(nameof(Explore), new { scenarioInstanceId = scenarioInstanceId });
             }
             return View(selections);
@@ -203,8 +212,19 @@ namespace UEFASwissFormatSelector.Controllers
                 var scenarioInstance = repository.ScenarioInstances.Find(scenarioInstanceId);
                 if (scenarioInstance == null)
                     return RedirectToAction(nameof(Index));
-                scenarioInstance.ClubsInScenarioInstance = model;
-                return RedirectToAction(nameof(Explore), new { scenarioInstanceId = scenarioInstanceId });
+                if (repository is MockRepository)
+                {
+                    scenarioInstance.ClubsInScenarioInstance = model;                    
+                }
+                else
+                {    
+                    foreach (var cisi in model)
+                    {
+                        scenarioInstance.ClubsInScenarioInstance.First(c => c.ClubId == cisi.ClubId).Ranking = cisi.Ranking;
+                    }
+                    repository.ScenarioInstances.Update(scenarioInstance);
+                }
+                    return RedirectToAction(nameof(Explore), new { scenarioInstanceId = scenarioInstanceId });
             }
             return RedirectToAction(nameof(Index));
         }
@@ -214,7 +234,14 @@ namespace UEFASwissFormatSelector.Controllers
             var scenarioInstance = repository.ScenarioInstances.Find(scenarioInstanceId);
             if (scenarioInstance == null)
                 return RedirectToAction(nameof(Index));
-            scenarioInstance.Pots = matchDrawService.PotTeam(scenarioInstance);
+            var pottings = matchDrawService.PotTeam(scenarioInstance);
+            if (repository is MockRepository)
+                scenarioInstance.Pots = pottings;
+            else
+            {
+                var sqlrepo = repository as SqlRepository;
+                sqlrepo.Add<Pot>(pottings.ToList());
+            }
             return RedirectToAction(nameof(Explore), new { scenarioInstanceId = scenarioInstanceId });
         }
         [HttpGet]
@@ -225,7 +252,8 @@ namespace UEFASwissFormatSelector.Controllers
                 return RedirectToAction(nameof(Index));
             var opponnentsDictionary = matchDrawService.GenerateOpponentsForAllClubs(scenarioInstance);
             //var viewModel = GenerateVM(scenarioInstance);
-            scenarioInstance.Opponents = opponnentsDictionary;
+            scenarioInstance.Opponents ??= new ModifiedDictionary<IEnumerable<Pot>>();
+            scenarioInstance.Opponents.RePopulate(opponnentsDictionary);
             return RedirectToAction(nameof(Explore), new { scenarioInstanceId = scenarioInstanceId});
         }
         [HttpGet]
@@ -235,8 +263,10 @@ namespace UEFASwissFormatSelector.Controllers
             if (scenarioInstance == null)
                 return RedirectToAction(nameof(Index));
             var matchUpResult = matchDrawService.DoMatchUps(scenarioInstance, scenarioInstance.Scenario.NumberOfGamesPerPot);
-            scenarioInstance.MatchUps = matchUpResult.Item1;
-            scenarioInstance.MatchUpSkeleton = matchUpResult.Item2;
+            scenarioInstance.MatchUps ??=new ModifiedDictionary<List<Club>>();
+            scenarioInstance.MatchUpSkeleton ??= new ModifiedDictionary<List<string>>();
+            scenarioInstance.MatchUps.RePopulate(matchUpResult.Item1);
+            scenarioInstance.MatchUpSkeleton.RePopulate(matchUpResult.Item2);
             return RedirectToAction(nameof(Explore), new { scenarioInstanceId = scenarioInstanceId });
         }
     }
