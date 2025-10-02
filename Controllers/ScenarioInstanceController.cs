@@ -76,7 +76,7 @@ namespace UEFASwissFormatSelector.Controllers
                 if (scenarioInstance != null)
                 {
                     scenarioInstance.Name = instanceVM.Name;
-                    repository.ScenarioInstances.Add(scenarioInstance);
+                    repository.ScenarioInstances.Update(scenarioInstance);
                 }
                 return RedirectToAction(nameof(Index));
             }
