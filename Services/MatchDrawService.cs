@@ -33,8 +33,14 @@ namespace UEFASwissFormatSelector.Services
             List<Pot> possibleOpponents = new List<Pot>();
             foreach (Pot pot in scenarioInstance.Pots)
             {
-                var opponentsFromPot = new Pot(pot.Name, pot.ClubsInPot.Count()) { ScenarioInstanceId = scenarioInstance.Id};
-                opponentsFromPot.ClubsInPot = pot.ClubsInPot.Where( cp => cp.ClubId != club.Id && cp.Club?.CountryId != club.CountryId ).ToList();
+                var opponentsFromPot = new Pot(pot.Name, pot.ClubsInPot.Count()) { ScenarioInstanceId = scenarioInstance.Id, IsOpponentPot = true};
+                var possibleOpponentsCIP = pot.ClubsInPot.Where(cp => cp.ClubId != club.Id && cp.Club?.CountryId != club.CountryId).ToList();
+                var adjustedpossibleOpponentsCIP = new List<ClubInPot>();
+                foreach (var cip in possibleOpponentsCIP)
+                {
+                    adjustedpossibleOpponentsCIP.Add( new ClubInPot { Club = cip.Club, ClubId = cip.ClubId, PotId = opponentsFromPot.Id} );
+                }
+                opponentsFromPot.ClubsInPot = adjustedpossibleOpponentsCIP;
                 possibleOpponents.Add(opponentsFromPot);
             }
             return possibleOpponents;

@@ -254,6 +254,13 @@ namespace UEFASwissFormatSelector.Controllers
             //var viewModel = GenerateVM(scenarioInstance);
             scenarioInstance.Opponents ??= new ModifiedDictionary<IEnumerable<Pot>>();
             scenarioInstance.Opponents.RePopulate(opponnentsDictionary);
+            if (!(repository is MockRepository))
+            {
+                var sqlrepo = repository as SqlRepository;
+                sqlrepo.Add<ModifiedDictionary<IEnumerable<Pot>>>(new List<ModifiedDictionary<IEnumerable<Pot>>> { scenarioInstance.Opponents});
+                sqlrepo.Add<Pot>(scenarioInstance.Opponents.GetAllValues<Pot>());
+                sqlrepo.Add<DbModifiedDictionaryEntity<Pot>>(scenarioInstance.Opponents.GetEquivalentDbEntities<Pot>());
+            }    
             return RedirectToAction(nameof(Explore), new { scenarioInstanceId = scenarioInstanceId});
         }
         [HttpGet]

@@ -1,4 +1,7 @@
-﻿namespace UEFASwissFormatSelector.Services
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using UEFASwissFormatSelector.Models;
+
+namespace UEFASwissFormatSelector.Services
 {
     /// <summary>
     /// This class was created as an alternative to Dictionary<Guid, Ienumerable<obj>> due to issues with ef core
@@ -8,7 +11,9 @@
     {
         public Guid Id { get; set; }
         public Guid ScenarioInstanceId { get; set; }
+        [NotMapped]
         private List<Guid> Guids { get; set; } = new List<Guid>();
+        [NotMapped]
         private List<T?> TValues { get; set; } = new List<T?>();
 
         public T? this[Guid guid]
@@ -62,6 +67,37 @@
         public IEnumerable<KeyValuePair<Guid, T>> Where(Func<KeyValuePair<Guid, T>, bool> predicate)
         {
             return GetAsDictionary().Where(predicate);
+        }
+
+        public List<DbModifiedDictionaryEntity<T>> GetEquivalentDbEntities<T>() where T : Identifiable
+        {
+            var list = new List<DbModifiedDictionaryEntity<T>>();
+            foreach (var guid in Guids)
+            {
+                foreach (Identifiable entity in this[guid])
+                {
+                    list.Add( new DbModifiedDictionaryEntity<T>
+                    {
+                        DictionaryId = this.Id,
+                        DictionaryKey = guid,
+                        ObjectId = entity.Id
+                    } );
+                }
+            }
+            return list;
+        }
+
+        public List<R> GetAllValues<R>()
+        {
+            var list = new List<R>();
+            foreach (Guid guid in Guids)
+            {
+                foreach (R item in this[guid])
+                {
+                    list.Add(item);
+                }
+            }
+            return list;
         }
         
     }

@@ -30,7 +30,8 @@ namespace UEFASwissFormatSelector.Services
             {
                 ScenarioInstance siEntity = entity as ScenarioInstance;
                 siEntity.ClubsInScenarioInstance = context.ClubsInScenarioInstance.Where(cisi => cisi.ScenarioInstanceId == siEntity.Id).Include(cisi => cisi.Club)?.ToList();
-                siEntity.Pots = context.Set<Pot>().Where(p => p.ScenarioInstanceId == id).Include(i=>i.ClubsInPot).ThenInclude(i => i.Club).ThenInclude(i => i.Country).ToList();
+                siEntity.Pots = context.Set<Pot>().Where(p => p.ScenarioInstanceId == id && !p.IsOpponentPot).OrderBy(p => p.Name).Include(i=>i.ClubsInPot).ThenInclude(i => i.Club).ThenInclude(i => i.Country).ToList();
+
                 return siEntity as T;
                 //Try to return a fully scenario entity when requested by id especially clubsinscenarioinstance
             }

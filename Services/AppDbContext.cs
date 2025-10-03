@@ -54,6 +54,16 @@ namespace UEFASwissFormatSelector.Services
                 .HasForeignKey(cisi => cisi.ScenarioInstanceId);
             });
 
+            modelBuilder.Entity<DbModifiedDictionaryEntity<Pot>>(dbe=>
+            {
+                dbe.HasKey(dbe => new { dbe.ObjectId, dbe.DictionaryId });                
+            });
+            
+            modelBuilder.Entity<DbModifiedDictionaryEntity<Club>>(dbe =>
+            {
+                dbe.HasKey(dbe => new { dbe.ObjectId, dbe.DictionaryId });
+            });
+
             //modelBuilder.Entity<ScenarioInstance>()
             //            .Property(si => si.Opponents)
             //            .HasConversion(

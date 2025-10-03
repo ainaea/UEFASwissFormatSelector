@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using UEFASwissFormatSelector.Services;
 
@@ -11,9 +12,11 @@ using UEFASwissFormatSelector.Services;
 namespace UEFASwissFormatSelector.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251003093713_Added_DbModifiedDictionaryEntity_To_Handle_ModifiedDictionary_IEnumerable_object__2")]
+    partial class Added_DbModifiedDictionaryEntity_To_Handle_ModifiedDictionary_IEnumerable_object__2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -510,9 +513,6 @@ namespace UEFASwissFormatSelector.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<bool>("IsOpponentPot")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -600,16 +600,16 @@ namespace UEFASwissFormatSelector.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("DbMatchUpsDictionaryId")
+                    b.Property<Guid>("DbMatchUpsDictionaryId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("DbMatchUpsObjectId")
+                    b.Property<Guid>("DbMatchUpsObjectId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("DbOpponentsDictionaryId")
+                    b.Property<Guid>("DbOpponentsDictionaryId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("DbOpponentsObjectId")
+                    b.Property<Guid>("DbOpponentsObjectId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Name")
@@ -751,12 +751,14 @@ namespace UEFASwissFormatSelector.Migrations
                     b.HasOne("UEFASwissFormatSelector.Models.DbModifiedDictionaryEntity<UEFASwissFormatSelector.Models.Club>", "DbMatchUps")
                         .WithMany()
                         .HasForeignKey("DbMatchUpsObjectId", "DbMatchUpsDictionaryId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("UEFASwissFormatSelector.Models.DbModifiedDictionaryEntity<UEFASwissFormatSelector.Models.Pot>", "DbOpponents")
                         .WithMany()
                         .HasForeignKey("DbOpponentsObjectId", "DbOpponentsDictionaryId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("DbMatchUps");
 

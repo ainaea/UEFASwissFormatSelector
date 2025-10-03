@@ -54,9 +54,9 @@ namespace UEFASwissFormatSelector.Services
                     dbContext.SaveChanges();
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                var et = ex.Message;
                 //throw;
             }
         }

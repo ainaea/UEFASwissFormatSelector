@@ -35,6 +35,7 @@ namespace UEFASwissFormatSelector.Models
                 }                
             }
         }
+        public DbModifiedDictionaryEntity<Pot>? DbOpponents { get; set; }
         //[NotMapped]
         //public virtual Dictionary<Guid, List<Club>>? MatchUps { get; set; }
         private ModifiedDictionary<List<Club>>? matchUps;
@@ -57,6 +58,7 @@ namespace UEFASwissFormatSelector.Models
                 MatchUps.ScenarioInstanceId = this.Id;
             }
         }
+        public DbModifiedDictionaryEntity<Club>? DbMatchUps { get; set; }
         //[NotMapped]
         //public virtual Dictionary<Guid, List<String>>? MatchUpSkeleton { get; set; }
         private ModifiedDictionary<List<String>>? matchUpSkeleton;
