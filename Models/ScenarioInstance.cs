@@ -81,6 +81,10 @@ namespace UEFASwissFormatSelector.Models
                 matchUpSkeleton.ScenarioInstanceId = this.Id;
             }
         }
+        [NotMapped]
+        public List<DbModifiedDictionaryEntity<Pot>>? GetEquivalentPotDbEntities { get; }
+        [NotMapped]
+        public List<DbModifiedDictionaryEntity<Club>>? GetEquivalentClubDbEntities { get; }
         public ScenarioInstance(Scenario scenario)
         {
             Scenario = scenario;

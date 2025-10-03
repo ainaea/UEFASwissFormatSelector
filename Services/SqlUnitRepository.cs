@@ -31,7 +31,27 @@ namespace UEFASwissFormatSelector.Services
                 ScenarioInstance siEntity = entity as ScenarioInstance;
                 siEntity.ClubsInScenarioInstance = context.ClubsInScenarioInstance.Where(cisi => cisi.ScenarioInstanceId == siEntity.Id).Include(cisi => cisi.Club)?.ToList();
                 siEntity.Pots = context.Set<Pot>().Where(p => p.ScenarioInstanceId == id && !p.IsOpponentPot).OrderBy(p => p.Name).Include(i=>i.ClubsInPot).ThenInclude(i => i.Club).ThenInclude(i => i.Country).ToList();
-
+                siEntity.DbOpponents = context.Set<DbModifiedDictionaryEntity<Pot>>().FirstOrDefault(c => c.ScenarioInstanceId == id);
+                if (siEntity.DbOpponents != null)
+                {
+                    var opponentPot = context.Set<Pot>().Where(p => p.IsOpponentPot && p.ScenarioInstanceId == id).OrderBy(p => p.Name).Include(i => i.ClubsInPot).ThenInclude(i => i.Club).ToList();
+                    var opponentDictionary = context.Set<DbModifiedDictionaryEntity<Pot>>().Where(dbmd => dbmd.ScenarioInstanceId == id).ToList();
+                    var dictionary = new ModifiedDictionary<IEnumerable<Pot>> { ScenarioInstanceId = id, Id = opponentDictionary.First().DictionaryId};
+                    foreach (var item in opponentDictionary)
+                    {
+                        var selection = dictionary[item.DictionaryKey];
+                        var selectedValue = opponentPot.First(p => p.Id == item.ObjectId);
+                        if (selection == null)
+                        {
+                            dictionary[item.DictionaryKey] = new List<Pot> { selectedValue };
+                        }
+                        else
+                        {
+                            (dictionary[item.DictionaryKey] as List<Pot>).Add(selectedValue);
+                        }
+                    }
+                    siEntity.Opponents = dictionary;
+                }
                 return siEntity as T;
                 //Try to return a fully scenario entity when requested by id especially clubsinscenarioinstance
             }

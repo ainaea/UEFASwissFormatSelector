@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using UEFASwissFormatSelector.Services;
 
@@ -11,9 +12,11 @@ using UEFASwissFormatSelector.Services;
 namespace UEFASwissFormatSelector.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251003192754_Configured_Only_Key_For_DbMOdifiedDictionaryEntites")]
+    partial class Configured_Only_Key_For_DbMOdifiedDictionaryEntites
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -486,16 +489,10 @@ namespace UEFASwissFormatSelector.Migrations
                     b.Property<Guid>("DictionaryKey")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("ScenarioInstanceId1")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("ObjectId", "DictionaryId", "ScenarioInstanceId");
 
-                    b.HasIndex("ScenarioInstanceId");
-
-                    b.HasIndex("ScenarioInstanceId1")
-                        .IsUnique()
-                        .HasFilter("[ScenarioInstanceId1] IS NOT NULL");
+                    b.HasIndex("ScenarioInstanceId")
+                        .IsUnique();
 
                     b.ToTable("DbModifiedDictionaryEntity<Club>");
                 });
@@ -514,16 +511,10 @@ namespace UEFASwissFormatSelector.Migrations
                     b.Property<Guid>("DictionaryKey")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("ScenarioInstanceId1")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("ObjectId", "DictionaryId", "ScenarioInstanceId");
 
-                    b.HasIndex("ScenarioInstanceId");
-
-                    b.HasIndex("ScenarioInstanceId1")
-                        .IsUnique()
-                        .HasFilter("[ScenarioInstanceId1] IS NOT NULL");
+                    b.HasIndex("ScenarioInstanceId")
+                        .IsUnique();
 
                     b.ToTable("DbModifiedDictionaryEntity<Pot>");
                 });
@@ -742,14 +733,10 @@ namespace UEFASwissFormatSelector.Migrations
             modelBuilder.Entity("UEFASwissFormatSelector.Models.DbModifiedDictionaryEntity<UEFASwissFormatSelector.Models.Club>", b =>
                 {
                     b.HasOne("UEFASwissFormatSelector.Models.ScenarioInstance", "ScenarioInstance")
-                        .WithMany("GetEquivalentClubDbEntities")
-                        .HasForeignKey("ScenarioInstanceId")
+                        .WithOne("DbMatchUps")
+                        .HasForeignKey("UEFASwissFormatSelector.Models.DbModifiedDictionaryEntity<UEFASwissFormatSelector.Models.Club>", "ScenarioInstanceId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.HasOne("UEFASwissFormatSelector.Models.ScenarioInstance", null)
-                        .WithOne("DbMatchUps")
-                        .HasForeignKey("UEFASwissFormatSelector.Models.DbModifiedDictionaryEntity<UEFASwissFormatSelector.Models.Club>", "ScenarioInstanceId1");
 
                     b.Navigation("ScenarioInstance");
                 });
@@ -757,14 +744,10 @@ namespace UEFASwissFormatSelector.Migrations
             modelBuilder.Entity("UEFASwissFormatSelector.Models.DbModifiedDictionaryEntity<UEFASwissFormatSelector.Models.Pot>", b =>
                 {
                     b.HasOne("UEFASwissFormatSelector.Models.ScenarioInstance", "ScenarioInstance")
-                        .WithMany("GetEquivalentPotDbEntities")
-                        .HasForeignKey("ScenarioInstanceId")
+                        .WithOne("DbOpponents")
+                        .HasForeignKey("UEFASwissFormatSelector.Models.DbModifiedDictionaryEntity<UEFASwissFormatSelector.Models.Pot>", "ScenarioInstanceId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.HasOne("UEFASwissFormatSelector.Models.ScenarioInstance", null)
-                        .WithOne("DbOpponents")
-                        .HasForeignKey("UEFASwissFormatSelector.Models.DbModifiedDictionaryEntity<UEFASwissFormatSelector.Models.Pot>", "ScenarioInstanceId1");
 
                     b.Navigation("ScenarioInstance");
                 });
@@ -828,10 +811,6 @@ namespace UEFASwissFormatSelector.Migrations
                     b.Navigation("DbMatchUps");
 
                     b.Navigation("DbOpponents");
-
-                    b.Navigation("GetEquivalentClubDbEntities");
-
-                    b.Navigation("GetEquivalentPotDbEntities");
 
                     b.Navigation("MatchUpSkeleton");
 

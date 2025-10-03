@@ -258,6 +258,7 @@ namespace UEFASwissFormatSelector.Controllers
             {
                 var sqlrepo = repository as SqlRepository;
                 sqlrepo.Add<ModifiedDictionary<IEnumerable<Pot>>>(new List<ModifiedDictionary<IEnumerable<Pot>>> { scenarioInstance.Opponents});
+                sqlrepo.ScenarioInstances.Update(scenarioInstance);
                 sqlrepo.Add<Pot>(scenarioInstance.Opponents.GetAllValues<Pot>());
                 sqlrepo.Add<DbModifiedDictionaryEntity<Pot>>(scenarioInstance.Opponents.GetEquivalentDbEntities<Pot>());
             }    

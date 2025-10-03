@@ -14,8 +14,7 @@ namespace UEFASwissFormatSelector.Services
         [NotMapped]
         private List<Guid> Guids { get; set; } = new List<Guid>();
         [NotMapped]
-        private List<T?> TValues { get; set; } = new List<T?>();
-
+        private List<T?> TValues { get; set; } = new List<T?>();        
         public T? this[Guid guid]
         {
             get
@@ -32,7 +31,8 @@ namespace UEFASwissFormatSelector.Services
                     Guids.Add(guid);
                     TValues.Add(value);
                 }
-                TValues[entityIndex] = value;
+                else
+                    TValues[entityIndex] = value;
             }
         }
 
@@ -76,7 +76,7 @@ namespace UEFASwissFormatSelector.Services
             {
                 foreach (Identifiable entity in this[guid])
                 {
-                    list.Add( new DbModifiedDictionaryEntity<T>
+                    list.Add( new DbModifiedDictionaryEntity<T>(ScenarioInstanceId)
                     {
                         DictionaryId = this.Id,
                         DictionaryKey = guid,
