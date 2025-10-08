@@ -52,6 +52,27 @@ namespace UEFASwissFormatSelector.Services
                         }
                     }
                     siEntity.Opponents = dictionary;
+
+                    var matchupDictionaryEntityDictionary = context.Set<DbModifiedDictionaryEntity<Club>>().Where(dbmd => dbmd.ScenarioInstanceId == id).ToList();
+                    if (matchupDictionaryEntityDictionary.Any())
+                    {
+                        var matchupDictionary = new ModifiedDictionary<List<Club>> { ScenarioInstanceId = id, Id = matchupDictionaryEntityDictionary.First().DictionaryId };
+                        var clubs = siEntity.ClubsInScenarioInstance.Select(dbmd => dbmd.Club).ToList();
+                        foreach (var item in matchupDictionaryEntityDictionary)
+                        {
+                            var selection = matchupDictionary[item.DictionaryKey];
+                            var selectedValue = clubs.First(p => p.Id == item.ObjectId);
+                            if (selection == null)
+                            {
+                                matchupDictionary[item.DictionaryKey] = new List<Club> { selectedValue };
+                            }
+                            else
+                            {
+                                (matchupDictionary[item.DictionaryKey] as List<Club>).Add(selectedValue);
+                            }
+                        }
+                        siEntity.MatchUps = matchupDictionary;
+                    }
                 }
                 siEntity.Pots = siPots;
                 return siEntity as T;

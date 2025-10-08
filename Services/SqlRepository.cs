@@ -19,11 +19,13 @@ namespace UEFASwissFormatSelector.Services
             countries = new SqlUnitRepository<Country>(dbContext);
             scenarios = new SqlUnitRepository<Scenario>(dbContext);
             scenarioInstances = new SqlUnitRepository<ScenarioInstance>(dbContext)/*.Include(si => si.Scenario)*/;
+            Pots = new SqlUnitRepository<Pot>(dbContext);
         }
         public IUnitRepository<Club> Clubs { get => clubs; set { } }
         public IUnitRepository<Country> Countries { get => countries; set { } } 
         public IUnitRepository<Scenario> Scenarios { get => scenarios; set { } }
         public IUnitRepository<ScenarioInstance> ScenarioInstances { get => IncludeCountries(); set { } }
+        public IUnitRepository<Pot> Pots { get; private set; }
 
         private IUnitRepository<ScenarioInstance> IncludeCountries()
         {

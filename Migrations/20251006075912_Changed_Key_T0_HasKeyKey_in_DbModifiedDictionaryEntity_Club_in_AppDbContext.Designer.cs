@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using UEFASwissFormatSelector.Services;
 
@@ -11,9 +12,11 @@ using UEFASwissFormatSelector.Services;
 namespace UEFASwissFormatSelector.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251006075912_Changed_Key_T0_HasKeyKey_in_DbModifiedDictionaryEntity_Club_in_AppDbContext")]
+    partial class Changed_Key_T0_HasKeyKey_in_DbModifiedDictionaryEntity_Club_in_AppDbContext
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -475,24 +478,25 @@ namespace UEFASwissFormatSelector.Migrations
             modelBuilder.Entity("UEFASwissFormatSelector.Models.DbModifiedDictionaryEntity<UEFASwissFormatSelector.Models.Club>", b =>
                 {
                     b.Property<Guid>("HasKeyKey")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ObjectId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("DictionaryId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("ScenarioInstanceId")
+                    b.Property<Guid>("DictionaryKey")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("DictionaryKey")
+                    b.Property<Guid>("ObjectId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ScenarioInstanceId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("ScenarioInstanceId1")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("HasKeyKey", "ObjectId", "DictionaryId", "ScenarioInstanceId");
+                    b.HasKey("HasKeyKey");
 
                     b.HasIndex("ScenarioInstanceId");
 
@@ -506,24 +510,25 @@ namespace UEFASwissFormatSelector.Migrations
             modelBuilder.Entity("UEFASwissFormatSelector.Models.DbModifiedDictionaryEntity<UEFASwissFormatSelector.Models.Pot>", b =>
                 {
                     b.Property<Guid>("HasKeyKey")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ObjectId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("DictionaryId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("ScenarioInstanceId")
+                    b.Property<Guid>("DictionaryKey")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("DictionaryKey")
+                    b.Property<Guid>("ObjectId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ScenarioInstanceId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("ScenarioInstanceId1")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("HasKeyKey", "ObjectId", "DictionaryId", "ScenarioInstanceId");
+                    b.HasKey("HasKeyKey");
 
                     b.HasIndex("ScenarioInstanceId");
 

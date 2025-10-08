@@ -257,7 +257,7 @@ namespace UEFASwissFormatSelector.Controllers
             if (!(repository is MockRepository))
             {
                 var sqlrepo = repository as SqlRepository;
-                sqlrepo.Add<ModifiedDictionary<IEnumerable<Pot>>>(new List<ModifiedDictionary<IEnumerable<Pot>>> { scenarioInstance.Opponents});
+                sqlrepo.Add<ModifiedDictionary<IEnumerable<Pot>>>(new List<ModifiedDictionary<IEnumerable<Pot>>> { scenarioInstance.Opponents });
                 sqlrepo.ScenarioInstances.Update(scenarioInstance);
                 sqlrepo.Add<Pot>(scenarioInstance.Opponents.GetAllValues<Pot>());
                 sqlrepo.Add<DbModifiedDictionaryEntity<Pot>>(scenarioInstance.Opponents.GetEquivalentDbEntities<Pot>());
@@ -275,6 +275,16 @@ namespace UEFASwissFormatSelector.Controllers
             scenarioInstance.MatchUpSkeleton ??= new ModifiedDictionary<List<string>>();
             scenarioInstance.MatchUps.RePopulate(matchUpResult.Item1);
             scenarioInstance.MatchUpSkeleton.RePopulate(matchUpResult.Item2);
+            if (!(repository is MockRepository))
+            {
+                var sqlrepo = repository as SqlRepository;
+                scenarioInstance.MatchUps = scenarioInstance.MatchUps;
+                scenarioInstance.Pots = sqlrepo.Pots.Where(p => p.ScenarioInstanceId == scenarioInstanceId);
+                //sqlrepo.Add<ModifiedDictionary<List<Club>>>(new List<ModifiedDictionary<List<Club>>> { scenarioInstance.MatchUps });
+                //sqlrepo.ScenarioInstances.Update(scenarioInstance);
+                ////sqlrepo.Add< DbModifiedDictionaryEntity<Club>(scenarioInstance.MatchUps.GetAllValues<Club>());
+                sqlrepo.Add<DbModifiedDictionaryEntity<Club>>(scenarioInstance.MatchUps.GetEquivalentDbEntities<Club>());
+            }
             return RedirectToAction(nameof(Explore), new { scenarioInstanceId = scenarioInstanceId });
         }
     }

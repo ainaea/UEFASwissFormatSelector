@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using UEFASwissFormatSelector.Services;
 
@@ -11,9 +12,11 @@ using UEFASwissFormatSelector.Services;
 namespace UEFASwissFormatSelector.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251006082554_Changed_Key_T0_HasKeyKey_AND_ObjectId_DictionaryId_ScenarioInstanceId_in_DbModifiedDictionaryEntity_Club_in_AppDbContext3")]
+    partial class Changed_Key_T0_HasKeyKey_AND_ObjectId_DictionaryId_ScenarioInstanceId_in_DbModifiedDictionaryEntity_Club_in_AppDbContext3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

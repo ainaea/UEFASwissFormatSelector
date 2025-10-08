@@ -56,7 +56,7 @@ namespace UEFASwissFormatSelector.Services
 
             modelBuilder.Entity<DbModifiedDictionaryEntity<Pot>>(dbe=>
             {
-                dbe.HasKey(dbe => new { dbe.ObjectId, dbe.DictionaryId, dbe.ScenarioInstanceId });
+                dbe.HasKey(dbe => new { dbe.HasKeyKey, dbe.ObjectId, dbe.DictionaryId, dbe.ScenarioInstanceId });
                 dbe.HasOne(dbo => dbo.ScenarioInstance)
                 .WithMany(si => si.GetEquivalentPotDbEntities)
                 .HasForeignKey(dbo => dbo.ScenarioInstanceId);
@@ -64,11 +64,12 @@ namespace UEFASwissFormatSelector.Services
             
             modelBuilder.Entity<DbModifiedDictionaryEntity<Club>>(dbe =>
             {
-                dbe.HasKey(dbe => new { dbe.ObjectId, dbe.DictionaryId, dbe.ScenarioInstanceId });
+                dbe.HasKey(dbe => new { dbe.HasKeyKey, dbe.ObjectId, dbe.DictionaryId, dbe.ScenarioInstanceId });
                 dbe.HasOne(c => c.ScenarioInstance)
                 .WithMany(si => si.GetEquivalentClubDbEntities)
                 .HasForeignKey(dbo => dbo.ScenarioInstanceId);
             });
+            
 
             //modelBuilder.Entity<ScenarioInstance>()
             //            .Property(si => si.Opponents)
