@@ -259,8 +259,17 @@ namespace UEFASwissFormatSelector.Controllers
                 var sqlrepo = repository as SqlRepository;
                 sqlrepo.Add<ModifiedDictionary<IEnumerable<Pot>>>(new List<ModifiedDictionary<IEnumerable<Pot>>> { scenarioInstance.Opponents });
                 sqlrepo.ScenarioInstances.Update(scenarioInstance);
-                sqlrepo.Add<Pot>(scenarioInstance.Opponents.GetAllValues<Pot>());
+                //sqlrepo.Add<Pot>(scenarioInstance.Opponents.GetAllValues<Pot>());
                 sqlrepo.Add<DbModifiedDictionaryEntity<Pot>>(scenarioInstance.Opponents.GetEquivalentDbEntities<Pot>());
+
+                var matchUpResult = matchDrawService.DoMatchUps(scenarioInstance, scenarioInstance.Scenario.NumberOfGamesPerPot);
+                var ee =new ModifiedDictionary<List<Club>>() { Id = Guid.NewGuid(), ScenarioInstanceId = scenarioInstanceId};
+                //scenarioInstance.MatchUpSkeleton ??= new ModifiedDictionary<List<string>>();
+                ee.RePopulate(matchUpResult.Item1);
+                //scenarioInstance.MatchUps = ee;
+                //scenarioInstance.MatchUpSkeleton.RePopulate(matchUpResult.Item2);
+                sqlrepo.Add<DbModifiedDictionaryEntity<Club>>(ee.GetEquivalentDbEntities<Club>());
+                sqlrepo.Add<Pot>(scenarioInstance.Opponents.GetAllValues<Pot>());
             }    
             return RedirectToAction(nameof(Explore), new { scenarioInstanceId = scenarioInstanceId});
         }
