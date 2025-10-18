@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.EntityFrameworkCore.ChangeTracking;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using UEFASwissFormatSelector.Models;
@@ -148,14 +149,25 @@ namespace UEFASwissFormatSelector.Services
                                 continue;
 
                             //oppositionPot is a pot that contains exactly i opponents for Man City
-
+                            var opponentsForClub = new List<Club>();
                             //Get exactly numberOfOpponentPerPot number of opponents eg 4 to face Mancity club in clubdictionary
                             //1. remove possible opponents clubs that have maxed out
-                            var preferredOppoents = oppositionPot.ClubsInPot.Where(cip => !ClubPotFixtureFull(cip.ClubId, clubPotName, fixedMatches, numberOfOpponentPerPot)).Select(cip => cip.Club).ToList();
-                            //2. remove pot clubs that have maxed out
-                            var allPot = GetPotByName(oppositionPot.Name, scenarioInstance.Pots)!.ClubsInPot.Where(cip => !ClubPotFixtureFull(cip.ClubId, clubPotName, fixedMatches, numberOfOpponentPerPot)).Select(cip => cip.Club).ToList();
-                            //3. call method to choose opponents
-                            var opponentsForClub = FindOpponents(remainingOpponents, thisClub.Id, preferredOppoents!, allPot!);
+                            var preferredOppoentsWithoutDivisionCheck = oppositionPot.ClubsInPot.Where(cip => !ClubPotFixtureFull(cip.ClubId, clubPotName, fixedMatches, numberOfOpponentPerPot)).Select(cip => cip.Club).ToList();
+
+                            for (int j = 0; j < remainingOpponents; j++)
+                            {
+                                var preferredOppoents = ThisClubCanPlayTheseClubs(thisClub, preferredOppoentsWithoutDivisionCheck, fixedMatches, scenarioInstance);
+                                //2. remove pot clubs that have maxed out
+                                var allPot = GetPotByName(oppositionPot.Name, scenarioInstance.Pots)!.ClubsInPot.Where(cip => !ClubPotFixtureFull(cip.ClubId, clubPotName, fixedMatches, numberOfOpponentPerPot)).Select(cip => cip.Club).ToList();
+
+                                var clubwithFullFixtures = preferredOppoentsWithoutDivisionCheck.Where(c => !allPot.Contains(c)).ToList();
+                                foreach (var clubwithFullFixture in clubwithFullFixtures)
+                                    preferredOppoentsWithoutDivisionCheck.Remove(clubwithFullFixture);
+                                //3. call method to choose opponents
+                                var selection = FindOpponents(/*remainingOpponents*/ 1, thisClub.Id, preferredOppoents!, allPot!);
+                                opponentsForClub.AddRange(selection);
+                                preferredOppoentsWithoutDivisionCheck.Remove(selection.FirstOrDefault());
+                            }
                             //4. fixup opponents
                             if (opponentsForClub != null)
                             {
@@ -353,6 +365,38 @@ namespace UEFASwissFormatSelector.Services
             return (fixedMatchesFull, fixedMatches);
 
                 //return fixedMatchesFull;
+        }
+        //For filtering out clubs that should be out based on maximum clubs from a division
+        private List<Club> ThisClubCanPlayTheseClubs(Club thisCLub, List<Club> theseClubs, Dictionary<Guid, List<string>> fixedMatches, ScenarioInstance scenarioInstance)
+        {
+            List<Club> playableClubs = new List<Club>();
+            int maximumOpponentFromADivision = 2;
+            Dictionary<Guid, List<Club>> fixedMatchesFull = GenerateFixedMatchFull(fixedMatches, scenarioInstance);
+            foreach (var club in theseClubs)
+            {
+                int clubCountryOpponentCountInThisClub = fixedMatchesFull.ContainsKey(thisCLub.Id)? fixedMatchesFull[thisCLub.Id].Where( c=> c.CountryId == club.CountryId).Count(): 0;
+                int thisCubCountryOpponentCountInClub = fixedMatchesFull.ContainsKey(club.Id) ?  fixedMatchesFull[club.Id].Where(c => c.CountryId == thisCLub.CountryId).Count() : 0;
+                if (clubCountryOpponentCountInThisClub < maximumOpponentFromADivision && thisCubCountryOpponentCountInClub < maximumOpponentFromADivision)
+                {
+                    playableClubs.Add(club);
+                }
+            }
+            return playableClubs;
+        }
+
+        private Dictionary<Guid, List<Club>> GenerateFixedMatchFull(Dictionary<Guid, List<string>> fixedMatches, ScenarioInstance scenarioInstance)
+        {
+            Dictionary<Guid, List<Club>> fixedMatchesFull = new Dictionary<Guid, List<Club>>();
+            foreach (var kvp in fixedMatches)
+            {
+                foreach (var valueVal in fixedMatches[kvp.Key])
+                {
+                    if (!fixedMatchesFull.ContainsKey(kvp.Key))
+                        fixedMatchesFull[kvp.Key] = new List<Club>();
+                    fixedMatchesFull[kvp.Key].Add(GetClub(valueVal, scenarioInstance.ClubsInScenarioInstance));
+                }
+            }
+            return fixedMatchesFull;
         }
         private int FoundOpponentsInPot(string potName, Guid clubId, Dictionary<Guid, List<string>> fixedMatches)
         {
