@@ -201,7 +201,7 @@ namespace UEFASwissFormatSelector.Controllers
             if (scenarioInstance == null)
                 return RedirectToAction(nameof(Index));
             ViewBag.scenarioInstanceId = scenarioInstanceId;
-            var viewModel = scenarioInstance.ClubsInScenarioInstance.OrderBy(c => c.Ranking);
+            var viewModel = scenarioInstance.ClubsInScenarioInstance.OrderByDescending(c => c.Ranking).ToList();
             return View(viewModel);
         }
         [HttpPost]
