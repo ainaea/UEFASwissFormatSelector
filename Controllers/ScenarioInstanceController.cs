@@ -152,7 +152,7 @@ namespace UEFASwissFormatSelector.Controllers
             if (scenarioInstance == null)
                 return RedirectToAction(nameof(Index));
             var viewModel = new List<SelectViewModel>();
-            foreach (Club club in repository.Clubs)
+            foreach (Club club in repository.Clubs.OrderBy(c => c.Name))
             {
                 viewModel.Add(new SelectViewModel
                 {
