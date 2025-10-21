@@ -52,7 +52,7 @@ namespace UEFASwissFormatSelector.Services
         /// For getting the dictionary equivalent of this object
         /// </summary>
         /// <returns></returns>
-        private Dictionary<Guid, T> GetAsDictionary()
+        public Dictionary<Guid, T> GetAsDictionary()
         {
             var dic = new Dictionary<Guid, T>();
             if (Guids != null)
