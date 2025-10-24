@@ -576,8 +576,8 @@ namespace UEFASwissFormatSelector.Services
         private bool ThisClubCanPlayCountryClub(Club thisClub, Club countryClub, int maxDivisionCount,  Dictionary<Guid, List<string>> fixedMatches, IEnumerable<ClubInScenarioInstance> clubsInScenarioInstance)
         {
             Dictionary<Guid, List<Club>> fixedMatchesFull= GenerateFixedMatchesFull(fixedMatches, clubsInScenarioInstance);
-            int thisClubCountryCount = fixedMatchesFull[thisClub.Id].Where(c => c.CountryId == countryClub.Id).Count();
-            int thisCountryClubCountryCount = fixedMatchesFull[countryClub.Id].Where(c => c.CountryId == thisClub.Id).Count();
+            int thisClubCountryCount = fixedMatchesFull[thisClub.Id].Where(c => c.CountryId == countryClub.CountryId).Count();
+            int thisCountryClubCountryCount = fixedMatchesFull[countryClub.Id].Where(c => c.CountryId == thisClub.CountryId).Count();
             return thisClubCountryCount < maxDivisionCount && thisCountryClubCountryCount < maxDivisionCount;
         }
 
