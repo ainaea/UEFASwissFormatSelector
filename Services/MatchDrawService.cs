@@ -534,11 +534,11 @@ namespace UEFASwissFormatSelector.Services
         }
         private (bool,  Dictionary<Guid, List<string>>, ModifiedDictionary<IEnumerable<Pot>>?) SelectedOpponentForLeastMatcheableClub(ScenarioInstance scenarioInstance, int numberOfOpponentPerPot, Dictionary<Guid, List<string>> fixedMatches, int maxOpponenentFromADivision, ModifiedDictionary<IEnumerable<Pot>>? allOpponent, int potClubsCount)
         {
-            foreach (KeyValuePair<Guid, IEnumerable<Pot>> clubDictionary in allOpponent.GetAsDictionary().OrderBy(kvp => kvp.Value.Min(p => { int c = p.ClubsInPot.Count(); return c == 0 ? potClubsCount+1 : c; })))
+            foreach (KeyValuePair<Guid, IEnumerable<Pot>> clubDictionary in allOpponent.GetAsDictionary().OrderBy(kvp=> fixedMatches[kvp.Key].Count()).ThenBy(kvp => kvp.Value.Min(p => {int c = p.ClubsInPot.Count(); return c == 0 ? potClubsCount+1 : c; })).ThenByDescending(kvp => {int minCount = kvp.Value.Min(p => p.ClubsInPot.Count()); var potNames = kvp.Value.Where(p => p.ClubsInPot.Count() == minCount).Select(p => p.Name).ToList() ; return potNames.Max(pn => fixedMatches[kvp.Key].Where(fx => fx.Contains(pn)).Count()); }))
             {
                 Club thisClub = scenarioInstance.ClubsInScenarioInstance.FirstOrDefault(c => c.ClubId == clubDictionary.Key)?.Club!;
                 string clubPotName = GetClubPotName(thisClub.Id, scenarioInstance.Pots);
-                foreach (var oppositionPot in clubDictionary.Value.OrderBy(p => p.ClubsInPot.Count()))
+                foreach (var oppositionPot in clubDictionary.Value.OrderBy(p => { int c = p.ClubsInPot.Count(); return c == 0 ? potClubsCount + 1 : c;}))
                 {
                     //NB: opposition pot already has club from the same division as thisClub filtered out
                     int remainingOpponents = numberOfOpponentPerPot - FoundOpponentsInPot(oppositionPot.Name, thisClub.Id, fixedMatches);
@@ -553,7 +553,7 @@ namespace UEFASwissFormatSelector.Services
                             continue;
 
                         var allPot = GetPotByName(oppositionPot.Name, scenarioInstance.Pots)!.ClubsInPot.Where(cip => !ClubPotFixtureFull(cip.ClubId, clubPotName, fixedMatches, numberOfOpponentPerPot)).Select(cip => cip.Club).ToList();
-                        var opponentsForClub = FindOpponents(/*remainingOpponents*/1, thisClub.Id, divisionAndFixtureFreeOpponents!, allPot!);
+                        var opponentsForClub = FindOpponents(/*remainingOpponents*/1, thisClub.Id, divisionAndFixtureFreeOpponents!, /*allPot!*/divisionAndFixtureFreeOpponents!);
                         if (opponentsForClub != null)
                         {
                             foreach (Club opponent in opponentsForClub)
