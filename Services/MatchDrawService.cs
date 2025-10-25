@@ -486,12 +486,13 @@ namespace UEFASwissFormatSelector.Services
             int maxOpponenentFromADivision = 2;
             var allOpponent = Duplicate(scenarioInstance.Opponents);
             int potClubsCount = scenarioInstance.Pots.First().ClubsInPot.Count();
-            const int loopSafetyCOunter = 0;
+            int loopSafetyCOunter = 0;
             bool flowControl;
+            List<Guid> priorityCountryIds = GetPriorityCountryIds(scenarioInstance.ClubsInScenarioInstance);
             //Fix matches one at a time starting with the team with least options and then repeat the process
             do
             {
-                (flowControl, fixedMatches, allOpponent) = SelectedOpponentForLeastMatcheableClub(scenarioInstance, numberOfOpponentPerPot, fixedMatches, maxOpponenentFromADivision, allOpponent, potClubsCount);
+                (flowControl, fixedMatches, allOpponent, loopSafetyCOunter) = SelectedOpponentForLeastMatcheableClub(scenarioInstance, numberOfOpponentPerPot, fixedMatches, maxOpponenentFromADivision, allOpponent, potClubsCount, priorityCountryIds, loopSafetyCOunter);
             } while (flowControl && loopSafetyCOunter < expectedMatchCount * fixedMatches.Keys.Count() * 0.75);
 
             fixedMatchesFull = GenerateFixedMatchesFull(fixedMatches, scenarioInstance.ClubsInScenarioInstance);
@@ -522,7 +523,7 @@ namespace UEFASwissFormatSelector.Services
                 var kvpPots = new List<Pot>();
                 foreach (Pot pot in opponentKvp.Value)
                 {
-                    var fixtureFreeOpponents = pot.ClubsInPot.Where(cip => !ClubPotFixtureFull(cip.ClubId, clubPotName, fixedMatches, numberOfOpponentPerPot)).Select(cip => cip.Club).ToList();
+                    var fixtureFreeOpponents = pot.ClubsInPot.Where(cip => !ClubHasFixtureAgainst(cip.ClubId, thisClub.Id, fixedMatches) && !ClubPotFixtureFull(cip.ClubId, clubPotName, fixedMatches, numberOfOpponentPerPot)).Select(cip => cip.Club).ToList();
                     var divisionAndFixtureFreeOpponentIds = fixtureFreeOpponents.Where(countryClub => ThisClubCanPlayCountryClub(countryClub, thisClub, maxOpponenentFromADivision, fixedMatches, scenarioInstance.ClubsInScenarioInstance)).Select(c=>c.Id).ToList();
                     var prefferedCIP = pot.ClubsInPot.Where(cip => divisionAndFixtureFreeOpponentIds.Contains(cip.ClubId)).ToList();
                     pot.ClubsInPot = prefferedCIP;
@@ -532,8 +533,9 @@ namespace UEFASwissFormatSelector.Services
             }
             return newAllOpponents;
         }
-        private (bool,  Dictionary<Guid, List<string>>, ModifiedDictionary<IEnumerable<Pot>>?) SelectedOpponentForLeastMatcheableClub(ScenarioInstance scenarioInstance, int numberOfOpponentPerPot, Dictionary<Guid, List<string>> fixedMatches, int maxOpponenentFromADivision, ModifiedDictionary<IEnumerable<Pot>>? allOpponent, int potClubsCount)
+        private (bool,  Dictionary<Guid, List<string>>, ModifiedDictionary<IEnumerable<Pot>>?, int loopSafetyCOunter) SelectedOpponentForLeastMatcheableClub(ScenarioInstance scenarioInstance, int numberOfOpponentPerPot, Dictionary<Guid, List<string>> fixedMatches, int maxOpponenentFromADivision, ModifiedDictionary<IEnumerable<Pot>>? allOpponent, int potClubsCount, List<Guid> priorityCountryIds, int loopSafetyCOunter)
         {
+            loopSafetyCOunter++;
             foreach (KeyValuePair<Guid, IEnumerable<Pot>> clubDictionary in allOpponent.GetAsDictionary().OrderBy(kvp=> fixedMatches[kvp.Key].Count()).ThenBy(kvp => kvp.Value.Min(p => {int c = p.ClubsInPot.Count(); return c == 0 ? potClubsCount+1 : c; })).ThenByDescending(kvp => {int minCount = kvp.Value.Min(p => p.ClubsInPot.Count()); var potNames = kvp.Value.Where(p => p.ClubsInPot.Count() == minCount).Select(p => p.Name).ToList() ; return potNames.Max(pn => fixedMatches[kvp.Key].Where(fx => fx.Contains(pn)).Count()); }))
             {
                 Club thisClub = scenarioInstance.ClubsInScenarioInstance.FirstOrDefault(c => c.ClubId == clubDictionary.Key)?.Club!;
@@ -546,14 +548,17 @@ namespace UEFASwissFormatSelector.Services
                     //ConditionsToMeet 1. thisClub can not play another club from his division, 2. this club can not play more than maxOpponenentFromADivision from any division 3. can not play more than numberOfOpponentPerPot
                     if (remainingOpponents > 0)
                     {
-                        var fixtureFreeOpponents = oppositionPot.ClubsInPot.Where(cip => !ClubPotFixtureFull(cip.ClubId, clubPotName, fixedMatches, numberOfOpponentPerPot)).Select(cip => cip.Club).ToList();
+                        var fixtureFreeOpponents = oppositionPot.ClubsInPot.Where(cip => !ClubHasFixtureAgainst(cip.ClubId, thisClub.Id, fixedMatches) && !ClubPotFixtureFull(cip.ClubId, clubPotName, fixedMatches, numberOfOpponentPerPot)).Select(cip => cip.Club).ToList();
                         var divisionAndFixtureFreeOpponents = fixtureFreeOpponents.Where(countryClub => ThisClubCanPlayCountryClub(countryClub, thisClub, maxOpponenentFromADivision, fixedMatches, scenarioInstance.ClubsInScenarioInstance)).ToList();
 
                         if (divisionAndFixtureFreeOpponents.Count() == 0)
                             continue;
 
-                        var allPot = GetPotByName(oppositionPot.Name, scenarioInstance.Pots)!.ClubsInPot.Where(cip => !ClubPotFixtureFull(cip.ClubId, clubPotName, fixedMatches, numberOfOpponentPerPot)).Select(cip => cip.Club).ToList();
-                        var opponentsForClub = FindOpponents(/*remainingOpponents*/1, thisClub.Id, divisionAndFixtureFreeOpponents!, /*allPot!*/divisionAndFixtureFreeOpponents!);
+                        //var allPot = GetPotByName(oppositionPot.Name, scenarioInstance.Pots)!.ClubsInPot.Where(cip => !ClubPotFixtureFull(cip.ClubId, clubPotName, fixedMatches, numberOfOpponentPerPot)).Select(cip => cip.Club).ToList();
+                        var priorityClubs = new List<Club>();
+                        if (divisionAndFixtureFreeOpponents.Count > 1 && priorityCountryIds.Contains(thisClub.CountryId))
+                            priorityClubs = divisionAndFixtureFreeOpponents.Where(c => !priorityCountryIds.Contains(c.CountryId)).ToList();
+                        var opponentsForClub = FindOpponents(/*remainingOpponents*/1, thisClub.Id, priorityClubs!, /*allPot!*/divisionAndFixtureFreeOpponents!);
                         if (opponentsForClub != null)
                         {
                             foreach (Club opponent in opponentsForClub)
@@ -563,14 +568,14 @@ namespace UEFASwissFormatSelector.Services
                             }
                             //Update Opponents collection
                             allOpponent = UpdateAllOpponents(allOpponent, fixedMatches, scenarioInstance, numberOfOpponentPerPot, maxOpponenentFromADivision);
-                            return (true, fixedMatches, allOpponent);
+                            return (true, fixedMatches, allOpponent, loopSafetyCOunter);
                         }
                     }
 
                 }
             }
 
-            return (false, fixedMatches, allOpponent);
+            return (false, fixedMatches, allOpponent, loopSafetyCOunter);
         }
 
         private bool ThisClubCanPlayCountryClub(Club thisClub, Club countryClub, int maxDivisionCount,  Dictionary<Guid, List<string>> fixedMatches, IEnumerable<ClubInScenarioInstance> clubsInScenarioInstance)
@@ -596,6 +601,25 @@ namespace UEFASwissFormatSelector.Services
                 }
             }
             return fixedMatchesFull;
+        }
+        private List<Guid> GetPriorityCountryIds(IEnumerable<ClubInScenarioInstance> clubsInScenarioInstance)
+        {
+            int count = 0;
+            var record = new Dictionary<Guid, List<Guid>>();
+            foreach (var club in clubsInScenarioInstance.Select(c=>c.Club))
+            {
+                if (!record.ContainsKey(club.CountryId))
+                    record[club.CountryId] = new List<Guid>();
+                record[club.CountryId].Add(club.Id);
+                count++;
+            }
+            var sortedRecord = record.OrderByDescending(kvp => kvp.Value.Count());
+            var result = new List<Guid>();
+            foreach (var kvp in sortedRecord.Where(kvp => kvp.Value.Count() > 2))
+            {
+                result.Add(kvp.Key);                
+            }            
+            return result;
         }
         #endregion
 
