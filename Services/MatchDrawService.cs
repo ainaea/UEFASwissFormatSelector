@@ -494,7 +494,67 @@ namespace UEFASwissFormatSelector.Services
             {
                 (flowControl, fixedMatches, allOpponent, loopSafetyCOunter) = SelectedOpponentForLeastMatcheableClub(scenarioInstance, numberOfOpponentPerPot, fixedMatches, maxOpponenentFromADivision, allOpponent, potClubsCount, priorityCountryIds, loopSafetyCOunter);
             } while (flowControl && loopSafetyCOunter < expectedMatchCount * fixedMatches.Keys.Count() * 0.75);
+            scenarioInstance.Opponents.RePopulate(GenerateOpponentsForAllClubs(scenarioInstance));
+            foreach (var kvp in fixedMatches.Where(kvp => kvp.Value.Count() < expectedMatchCount).OrderByDescending(kvp => kvp.Value.Count()))
+            {
+                if (kvp.Value.Count >= expectedMatchCount)
+                    continue;
+                Club thisClub = scenarioInstance.ClubsInScenarioInstance.FirstOrDefault(c => c.ClubId == kvp.Key)?.Club!;
+                string clubPotName = GetClubPotName(thisClub.Id, scenarioInstance.Pots);
+                foreach (string opponentPotname in potNames)
+                {
+                    int clubPotFixtureCount = ClubPotFixtureCount(kvp.Key, opponentPotname, fixedMatches);
+                    if (clubPotFixtureCount >= numberOfOpponentPerPot)
+                        continue;
+                    int remainingOpponents = numberOfOpponentPerPot - clubPotFixtureCount;
+                    for (int i = 0; i < remainingOpponents; i++)
+                    {
+                        //for thisClub not to be fully matchedup at this point, all possible opponents must have been fixed up except a club, selectedClubInOpponentPotWithIncompletePotFixtures = sCIOPWIPF that should have played thisClub but couldn't and that club will have an incomplete fixture too
+                        var clubsInOpponentPot = scenarioInstance.Pots.First(p => p.Name == opponentPotname).ClubsInPot.Select(cip => cip.Club).ToList();
+                        if (clubPotName == opponentPotname)
+                        {
+                            var this_Club = clubsInOpponentPot.First(c => c.Id == thisClub.Id);
+                            clubsInOpponentPot.Remove(this_Club);
+                        }
+                        var clubsInOpponentPotWithIncompletePotFixtures = clubsInOpponentPot.Where(c => !ClubPotFixtureFull(c.Id, clubPotName, fixedMatches, numberOfOpponentPerPot)).ToList();
+                        if (clubsInOpponentPot.Count() == 0)
+                            continue;
+                        //selectedClubInOpponentPotWithIncompletePotFixtures = sCIOPWIPF
+                        var sCIOPWIPF = FindOpponents(1, thisClub.Id, clubsInOpponentPotWithIncompletePotFixtures, clubsInOpponentPotWithIncompletePotFixtures).First();      //from opponentPotname
+                        var potentialThisClubOpponents = clubsInOpponentPot.Where(c => thisClub.CountryId != c.CountryId && !ClubHasFixtureAgainst(thisClub.Id, c.Id, fixedMatches) && ThisClubCanPlayCountryClub(thisClub, c, maxOpponenentFromADivision, fixedMatches, scenarioInstance.ClubsInScenarioInstance));
+                        var clubPotOpponent = new Dictionary<Guid, List<Club>>();
+                        foreach (Club club in potentialThisClubOpponents)
+                        {
+                            clubPotOpponent[club.Id] = new List<Club>();
+                            var clubPotName_Club_Clubs = fixedMatches[club.Id].Where(str => str.Contains(clubPotName)).Select(str => GetClub(str, scenarioInstance.ClubsInScenarioInstance)).ToList();  //all from clubPotName
+                            foreach (var itemClub in clubPotName_Club_Clubs)
+                            {
+                                if (!ClubHasFixtureAgainst(itemClub.Id, sCIOPWIPF.Id, fixedMatches) && itemClub.CountryId != sCIOPWIPF.CountryId && ThisClubCanPlayCountryClub(itemClub, sCIOPWIPF, maxOpponenentFromADivision, fixedMatches, scenarioInstance.ClubsInScenarioInstance))
+                                    clubPotOpponent[club.Id].Add(itemClub);
+                            }
+                        }
+                        var acceptableThisClubOpponents = clubPotOpponent.Where(kvp => kvp.Value.Count() > 0).Select(kvp => scenarioInstance.ClubsInScenarioInstance.First(cisi => cisi.ClubId == kvp.Key).Club).ToList();
+                        if (acceptableThisClubOpponents.Count() == 0)
+                            continue;
+                        var selectedThisClubOpponent = FindOpponents(1, thisClub.Id, acceptableThisClubOpponents, acceptableThisClubOpponents).First();      //from opponentPotname
+                        var acceptablesCIOPWIPFClubOpponents = clubPotOpponent[selectedThisClubOpponent.Id];
+                        if (acceptablesCIOPWIPFClubOpponents.Count() == 0)
+                            continue;
+                        var selectedsCIOPWIPFClubOpponent = FindOpponents(1, sCIOPWIPF.Id, acceptablesCIOPWIPFClubOpponents, acceptablesCIOPWIPFClubOpponents).First();    // from clubPotName
+                        //selectedThisClubOpponent and selectedsCIOPWIPFClubOpponents are two clubs playing each other that can be rematched with sCIOPWIPF and thisClub after their mutual fixrture has been canceled
+                        string str1 = fixedMatches[selectedThisClubOpponent.Id].First(str => str.Contains(selectedsCIOPWIPFClubOpponent.Id.ToString()));
+                        fixedMatches[selectedThisClubOpponent.Id].Remove(str1);
+                        string str2 = fixedMatches[selectedsCIOPWIPFClubOpponent.Id].First(str => str.Contains(selectedThisClubOpponent.Id.ToString()));
+                        fixedMatches[selectedsCIOPWIPFClubOpponent.Id].Remove(str2);
 
+                        fixedMatches[thisClub.Id].Add(GenerateClubPotName(selectedThisClubOpponent.Id, opponentPotname));
+                        fixedMatches[selectedThisClubOpponent.Id].Add(GenerateClubPotName(thisClub.Id, clubPotName));
+
+                        fixedMatches[sCIOPWIPF.Id].Add(GenerateClubPotName(selectedsCIOPWIPFClubOpponent.Id, opponentPotname));
+                        fixedMatches[selectedsCIOPWIPFClubOpponent.Id].Add(GenerateClubPotName(sCIOPWIPF.Id, clubPotName));
+                    }
+                }
+            }
             fixedMatchesFull = GenerateFixedMatchesFull(fixedMatches, scenarioInstance.ClubsInScenarioInstance);
             if (!scenarioInstance.Scenario.HomeAndAwayPerOpponent)
             {
@@ -556,8 +616,15 @@ namespace UEFASwissFormatSelector.Services
 
                         //var allPot = GetPotByName(oppositionPot.Name, scenarioInstance.Pots)!.ClubsInPot.Where(cip => !ClubPotFixtureFull(cip.ClubId, clubPotName, fixedMatches, numberOfOpponentPerPot)).Select(cip => cip.Club).ToList();
                         var priorityClubs = new List<Club>();
-                        if (divisionAndFixtureFreeOpponents.Count > 1 && priorityCountryIds.Contains(thisClub.CountryId))
-                            priorityClubs = divisionAndFixtureFreeOpponents.Where(c => !priorityCountryIds.Contains(c.CountryId)).ToList();
+                        //if (divisionAndFixtureFreeOpponents.Count > 1 && priorityCountryIds.Contains(thisClub.CountryId))
+                        //    priorityClubs = divisionAndFixtureFreeOpponents.Where(c => !priorityCountryIds.Contains(c.CountryId)).ToList();
+                        //if (divisionAndFixtureFreeOpponents.Count() > 2)
+                        //    priorityClubs = divisionAndFixtureFreeOpponents.OrderByDescending(c => allOpponent[c.Id].First(p => p.Name == clubPotName).ClubsInPot.Count()).Take(2).ToList();
+                        if (remainingOpponents == 1 && divisionAndFixtureFreeOpponents.Count() > 1)
+                        {
+                            var selectedClubCountryIds = fixedMatches[thisClub.Id].Select(str => GetClub(str, scenarioInstance.ClubsInScenarioInstance)).Select(c => c.CountryId);
+                            priorityClubs = divisionAndFixtureFreeOpponents.Where(c => !selectedClubCountryIds.Contains(c.CountryId)).ToList();
+                        }
                         var opponentsForClub = FindOpponents(/*remainingOpponents*/1, thisClub.Id, priorityClubs!, /*allPot!*/divisionAndFixtureFreeOpponents!);
                         if (opponentsForClub != null)
                         {
@@ -602,6 +669,20 @@ namespace UEFASwissFormatSelector.Services
             }
             return fixedMatchesFull;
         }
+        //private void GenerateFixedMatchesFull(ref Dictionary<Guid, List<Club>> fixedMatchesFull, Dictionary<Guid, List<string>> fixedMatches, IEnumerable<ClubInScenarioInstance> clubsInScenarioInstance, params Club[] clubs)
+        //{
+        //    foreach (var kvp in fixedMatches)
+        //    {
+        //        fixedMatchesFull[kvp.Key] = new List<Club>();
+        //        foreach (var valueVal in fixedMatches[kvp.Key])
+        //        {
+        //            if (fixedMatchesFull.ContainsKey(kvp.Key))
+        //                fixedMatchesFull[kvp.Key].Add(GetClub(valueVal, clubsInScenarioInstance));
+        //            else
+        //                fixedMatchesFull[kvp.Key] = new List<Club>() { GetClub(valueVal, clubsInScenarioInstance) };
+        //        }
+        //    }
+        //}
         private List<Guid> GetPriorityCountryIds(IEnumerable<ClubInScenarioInstance> clubsInScenarioInstance)
         {
             int count = 0;
