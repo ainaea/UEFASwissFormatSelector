@@ -545,7 +545,7 @@ namespace UEFASwissFormatSelector.Services
                         var acceptablesCIOPWIPFClubOpponents = clubPotOpponent[selectedThisClubOpponent.Id];
                         if (thisClub.Id == sCIOPWIPF.Id)
                             acceptablesCIOPWIPFClubOpponents = acceptablesCIOPWIPFClubOpponents.Where(c => c.Id != selectedThisClubOpponent.Id).ToList();
-                        //the condition above is intended for when a club can match because other clubs have fully matched it up. Check var sCIOPWIPF = clubsInOpponentPotWithIncomple... 
+                        //the condition above is intended for when a club cant match because other clubs have fully matched it up. Check var sCIOPWIPF = clubsInOpponentPotWithIncomple... 
                         if (acceptablesCIOPWIPFClubOpponents.Count() == 0)
                             continue;
                         var selectedsCIOPWIPFClubOpponent = FindOpponents(1, sCIOPWIPF.Id, acceptablesCIOPWIPFClubOpponents, acceptablesCIOPWIPFClubOpponents).First();    // from clubPotName
@@ -561,10 +561,10 @@ namespace UEFASwissFormatSelector.Services
                         fixedMatches[selectedThisClubOpponent.Id].Add(GenerateClubPotName(thisClub.Id, clubPotName));
                         if (fixedMatches[selectedThisClubOpponent.Id].Count() > 8)
                             fgh = fixedMatches[selectedThisClubOpponent.Id];
-                        fixedMatches[sCIOPWIPF.Id].Add(GenerateClubPotName(selectedsCIOPWIPFClubOpponent.Id, opponentPotname));
+                        fixedMatches[sCIOPWIPF.Id].Add(GenerateClubPotName(selectedsCIOPWIPFClubOpponent.Id, clubPotName));
                         if (fixedMatches[sCIOPWIPF.Id].Count() > 8)
                             fgh = fixedMatches[sCIOPWIPF.Id];
-                        fixedMatches[selectedsCIOPWIPFClubOpponent.Id].Add(GenerateClubPotName(sCIOPWIPF.Id, clubPotName));
+                        fixedMatches[selectedsCIOPWIPFClubOpponent.Id].Add(GenerateClubPotName(sCIOPWIPF.Id, opponentPotname));
                         if (fixedMatches[selectedsCIOPWIPFClubOpponent.Id].Count() > 8)
                             fgh = fixedMatches[selectedsCIOPWIPFClubOpponent.Id];
                     }
