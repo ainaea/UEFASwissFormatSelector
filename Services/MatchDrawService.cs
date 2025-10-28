@@ -472,7 +472,7 @@ namespace UEFASwissFormatSelector.Services
         #region New Impelentation
 
         private T Duplicate<T>(T entry) => entry;
-        public (Dictionary<Guid, List<Club>>, Dictionary<Guid, List<string>>) DoMatchUps(ScenarioInstance scenarioInstance, int numberOfOpponentPerPot)
+        public (Dictionary<Guid, List<Club>>, Dictionary<Guid, List<string>>) LocalDoMatchUps(ScenarioInstance scenarioInstance, int numberOfOpponentPerPot)
         {
             Dictionary<Guid, List<string>> fixedMatches = new Dictionary<Guid, List<string>>();     //Guid is for clubId and string is the concatination of format "opponentCludId_potname"
             Dictionary<Guid, List<Club>> fixedMatchesFull = new Dictionary<Guid, List<Club>>();
@@ -494,7 +494,32 @@ namespace UEFASwissFormatSelector.Services
             {
                 (flowControl, fixedMatches, allOpponent, loopSafetyCOunter) = SelectedOpponentForLeastMatcheableClub(scenarioInstance, numberOfOpponentPerPot, fixedMatches, maxOpponenentFromADivision, allOpponent, potClubsCount, priorityCountryIds, loopSafetyCOunter);
             } while (flowControl && loopSafetyCOunter < expectedMatchCount * fixedMatches.Keys.Count() * 0.75);
-            scenarioInstance.Opponents.RePopulate(GenerateOpponentsForAllClubs(scenarioInstance));
+            scenarioInstance.Opponents.RePopulate(GenerateOpponentsForAllClubs(scenarioInstance));            
+            if (fixedMatches.Any(kvp => kvp.Value.Count() != expectedMatchCount))
+            {
+                fixedMatches = SwapFixtureFixing(scenarioInstance, numberOfOpponentPerPot, fixedMatches, expectedMatchCount, potNames, maxOpponenentFromADivision);
+            }
+            fixedMatchesFull = GenerateFixedMatchesFull(fixedMatches, scenarioInstance.ClubsInScenarioInstance);
+            if (!scenarioInstance.Scenario.HomeAndAwayPerOpponent)
+            {
+                int minHomeMatchCount = scenarioInstance.Scenario.NumberOfGamesPerPot / 2;
+                int maxHomeMatchCount = minHomeMatchCount + scenarioInstance.Scenario.NumberOfGamesPerPot % 2;
+                foreach (var kvp in fixedMatches)
+                {
+                    string kvpPot = GetClubPotName(kvp.Key, scenarioInstance.Pots);
+                    foreach (String potName in potNames)
+                    {
+                        var possiblePotHomeOpponent = GetPossiblePotHomeOpponents(fixedMatches, potName, kvp.Key, maxHomeMatchCount, kvpPot);
+                        var selectedHomeOpponents = SelectHomeOpponents(possiblePotHomeOpponent, minHomeMatchCount);
+                        fixedMatches = UpdateFixedMatchesLocation(fixedMatches, kvp.Key, selectedHomeOpponents, potName);
+                    }
+                }
+            }
+            return (fixedMatchesFull, fixedMatches);
+        }
+
+        private Dictionary<Guid, List<string>> SwapFixtureFixing(ScenarioInstance scenarioInstance, int numberOfOpponentPerPot, Dictionary<Guid, List<string>> fixedMatches, int expectedMatchCount, List<string> potNames, int maxOpponenentFromADivision)
+        {
             foreach (var kvp in fixedMatches.Where(kvp => kvp.Value.Count() < expectedMatchCount).OrderByDescending(kvp => kvp.Value.Count()))
             {
                 if (kvp.Value.Count >= expectedMatchCount)
@@ -525,7 +550,7 @@ namespace UEFASwissFormatSelector.Services
                             i++;
                         }
                         //selectedClubInOpponentPotWithIncompletePotFixtures = sCIOPWIPF
-                        var sCIOPWIPF = clubsInOpponentPotWithIncompletePotFixtures.Count() == 0 && clubPotName == opponentPotname && remainingOpponents % 2 == 0? thisClub: FindOpponents(1, thisClub.Id, clubsInOpponentPotWithIncompletePotFixtures, clubsInOpponentPotWithIncompletePotFixtures).First();      //from opponentPotname
+                        var sCIOPWIPF = clubsInOpponentPotWithIncompletePotFixtures.Count() == 0 && clubPotName == opponentPotname && remainingOpponents % 2 == 0 ? thisClub : FindOpponents(1, thisClub.Id, clubsInOpponentPotWithIncompletePotFixtures, clubsInOpponentPotWithIncompletePotFixtures).First();      //from opponentPotname
                         var potentialThisClubOpponents = clubsInOpponentPot.Where(c => thisClub.CountryId != c.CountryId && !ClubHasFixtureAgainst(thisClub.Id, c.Id, fixedMatches) && ThisClubCanPlayCountryClub(thisClub, c, maxOpponenentFromADivision, fixedMatches, scenarioInstance.ClubsInScenarioInstance));
                         var clubPotOpponent = new Dictionary<Guid, List<Club>>();
                         foreach (Club club in potentialThisClubOpponents)
@@ -554,40 +579,40 @@ namespace UEFASwissFormatSelector.Services
                         fixedMatches[selectedThisClubOpponent.Id].Remove(str1);
                         string str2 = fixedMatches[selectedsCIOPWIPFClubOpponent.Id].First(str => str.Contains(selectedThisClubOpponent.Id.ToString()));
                         fixedMatches[selectedsCIOPWIPFClubOpponent.Id].Remove(str2);
-                        List<string> fgh = new  List<string>();
+                        List<string> fgh = new List<string>();
                         fixedMatches[thisClub.Id].Add(GenerateClubPotName(selectedThisClubOpponent.Id, opponentPotname));
-                        if (fixedMatches[thisClub.Id].Count > 8)
+                        if (fixedMatches[thisClub.Id].Count > expectedMatchCount)
                             fgh = fixedMatches[thisClub.Id];
                         fixedMatches[selectedThisClubOpponent.Id].Add(GenerateClubPotName(thisClub.Id, clubPotName));
-                        if (fixedMatches[selectedThisClubOpponent.Id].Count() > 8)
+                        if (fixedMatches[selectedThisClubOpponent.Id].Count() > expectedMatchCount)
                             fgh = fixedMatches[selectedThisClubOpponent.Id];
                         fixedMatches[sCIOPWIPF.Id].Add(GenerateClubPotName(selectedsCIOPWIPFClubOpponent.Id, clubPotName));
-                        if (fixedMatches[sCIOPWIPF.Id].Count() > 8)
+                        if (fixedMatches[sCIOPWIPF.Id].Count() > expectedMatchCount)
                             fgh = fixedMatches[sCIOPWIPF.Id];
                         fixedMatches[selectedsCIOPWIPFClubOpponent.Id].Add(GenerateClubPotName(sCIOPWIPF.Id, opponentPotname));
-                        if (fixedMatches[selectedsCIOPWIPFClubOpponent.Id].Count() > 8)
+                        if (fixedMatches[selectedsCIOPWIPFClubOpponent.Id].Count() > expectedMatchCount)
                             fgh = fixedMatches[selectedsCIOPWIPFClubOpponent.Id];
                     }
                 }
             }
-            fixedMatchesFull = GenerateFixedMatchesFull(fixedMatches, scenarioInstance.ClubsInScenarioInstance);
-            if (!scenarioInstance.Scenario.HomeAndAwayPerOpponent)
+            return fixedMatches;
+        }
+
+        public (Dictionary<Guid, List<Club>>, Dictionary<Guid, List<string>>) DoMatchUps(ScenarioInstance scenarioInstance, int numberOfOpponentPerPot)
+        {
+            int loopCount = 0;
+            int expectedMatchCount = scenarioInstance.Pots.Count() * numberOfOpponentPerPot;
+            Dictionary<Guid, List<string>> fixedMatches = new Dictionary<Guid, List<string>>();     //Guid is for clubId and string is the concatination of format "opponentCludId_potname"
+            Dictionary<Guid, List<Club>> fixedMatchesFull = new Dictionary<Guid, List<Club>>();
+            do
             {
-                int minHomeMatchCount = scenarioInstance.Scenario.NumberOfGamesPerPot / 2;
-                int maxHomeMatchCount = minHomeMatchCount + scenarioInstance.Scenario.NumberOfGamesPerPot % 2;
-                foreach (var kvp in fixedMatches)
-                {
-                    string kvpPot = GetClubPotName(kvp.Key, scenarioInstance.Pots);
-                    foreach (String potName in potNames)
-                    {
-                        var possiblePotHomeOpponent = GetPossiblePotHomeOpponents(fixedMatches, potName, kvp.Key, maxHomeMatchCount, kvpPot);
-                        var selectedHomeOpponents = SelectHomeOpponents(possiblePotHomeOpponent, minHomeMatchCount);
-                        fixedMatches = UpdateFixedMatchesLocation(fixedMatches, kvp.Key, selectedHomeOpponents, potName);
-                    }
-                }
-            }
+                (fixedMatchesFull, fixedMatches) = LocalDoMatchUps(scenarioInstance, numberOfOpponentPerPot);
+                loopCount++;
+            } 
+            while (loopCount < 3 && fixedMatches.Any(kvp=> kvp.Value.Count() != expectedMatchCount));
             return (fixedMatchesFull, fixedMatches);
         }
+
         private ModifiedDictionary<IEnumerable<Pot>>? UpdateAllOpponents(ModifiedDictionary<IEnumerable<Pot>>? allOpponent, Dictionary<Guid, List<string>> fixedMatches, ScenarioInstance scenarioInstance, int numberOfOpponentPerPot, int maxOpponenentFromADivision)
         {
             ModifiedDictionary<IEnumerable<Pot>> newAllOpponents = new ModifiedDictionary<IEnumerable<Pot>>();
