@@ -494,10 +494,15 @@ namespace UEFASwissFormatSelector.Services
             {
                 (flowControl, fixedMatches, allOpponent, loopSafetyCOunter) = SelectedOpponentForLeastMatcheableClub(scenarioInstance, numberOfOpponentPerPot, fixedMatches, maxOpponenentFromADivision, allOpponent, potClubsCount, priorityCountryIds, loopSafetyCOunter);
             } while (flowControl && loopSafetyCOunter < expectedMatchCount * fixedMatches.Keys.Count() * 0.75);
-            scenarioInstance.Opponents.RePopulate(GenerateOpponentsForAllClubs(scenarioInstance));            
-            if (fixedMatches.Any(kvp => kvp.Value.Count() != expectedMatchCount))
+            for (int i = 0; i < 3; i++)
             {
-                fixedMatches = SwapFixtureFixing(scenarioInstance, numberOfOpponentPerPot, fixedMatches, expectedMatchCount, potNames, maxOpponenentFromADivision);
+                scenarioInstance.Opponents.RePopulate(GenerateOpponentsForAllClubs(scenarioInstance));
+                if (fixedMatches.Any(kvp => kvp.Value.Count() != expectedMatchCount))
+                {
+                    fixedMatches = SwapFixtureFixing(scenarioInstance, numberOfOpponentPerPot, fixedMatches, expectedMatchCount, potNames, maxOpponenentFromADivision);
+                }
+                else
+                    break;
             }
             fixedMatchesFull = GenerateFixedMatchesFull(fixedMatches, scenarioInstance.ClubsInScenarioInstance);
             if (!scenarioInstance.Scenario.HomeAndAwayPerOpponent)
