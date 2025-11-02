@@ -492,7 +492,8 @@ namespace UEFASwissFormatSelector.Services
             //Fix matches one at a time starting with the team with least options and then repeat the process
             do
             {
-                (flowControl, fixedMatches, allOpponent, loopSafetyCOunter) = SelectedOpponentForLeastMatcheableClub(scenarioInstance, numberOfOpponentPerPot, fixedMatches, maxOpponenentFromADivision, allOpponent, potClubsCount, priorityCountryIds, loopSafetyCOunter);
+                (flowControl, fixedMatches, allOpponent) = SelectedOpponentForLeastMatcheableClub(scenarioInstance, numberOfOpponentPerPot, fixedMatches, maxOpponenentFromADivision, allOpponent, potClubsCount, priorityCountryIds);
+                loopSafetyCOunter++;
             } while (flowControl && loopSafetyCOunter < expectedMatchCount * fixedMatches.Keys.Count() * 0.75);
             for (int i = 0; i < 3; i++)
             {
@@ -638,9 +639,8 @@ namespace UEFASwissFormatSelector.Services
             }
             return newAllOpponents;
         }
-        private (bool,  Dictionary<Guid, List<string>>, ModifiedDictionary<IEnumerable<Pot>>?, int loopSafetyCOunter) SelectedOpponentForLeastMatcheableClub(ScenarioInstance scenarioInstance, int numberOfOpponentPerPot, Dictionary<Guid, List<string>> fixedMatches, int maxOpponenentFromADivision, ModifiedDictionary<IEnumerable<Pot>>? allOpponent, int potClubsCount, List<Guid> priorityCountryIds, int loopSafetyCOunter)
+        private (bool,  Dictionary<Guid, List<string>>, ModifiedDictionary<IEnumerable<Pot>>?) SelectedOpponentForLeastMatcheableClub(ScenarioInstance scenarioInstance, int numberOfOpponentPerPot, Dictionary<Guid, List<string>> fixedMatches, int maxOpponenentFromADivision, ModifiedDictionary<IEnumerable<Pot>>? allOpponent, int potClubsCount, List<Guid> priorityCountryIds)
         {
-            loopSafetyCOunter++;
             foreach (KeyValuePair<Guid, IEnumerable<Pot>> clubDictionary in allOpponent.GetAsDictionary().OrderBy(kvp=> fixedMatches[kvp.Key].Count()).ThenBy(kvp => kvp.Value.Min(p => {int c = p.ClubsInPot.Count(); return c == 0 ? potClubsCount+1 : c; })).ThenByDescending(kvp => {int minCount = kvp.Value.Min(p => p.ClubsInPot.Count()); var potNames = kvp.Value.Where(p => p.ClubsInPot.Count() == minCount).Select(p => p.Name).ToList() ; return potNames.Max(pn => fixedMatches[kvp.Key].Where(fx => fx.Contains(pn)).Count()); }))
             {
                 Club thisClub = scenarioInstance.ClubsInScenarioInstance.FirstOrDefault(c => c.ClubId == clubDictionary.Key)?.Club!;
@@ -680,14 +680,14 @@ namespace UEFASwissFormatSelector.Services
                             }
                             //Update Opponents collection
                             allOpponent = UpdateAllOpponents(allOpponent, fixedMatches, scenarioInstance, numberOfOpponentPerPot, maxOpponenentFromADivision);
-                            return (true, fixedMatches, allOpponent, loopSafetyCOunter);
+                            return (true, fixedMatches, allOpponent);
                         }
                     }
 
                 }
             }
 
-            return (false, fixedMatches, allOpponent, loopSafetyCOunter);
+            return (false, fixedMatches, allOpponent);
         }
 
         private bool ThisClubCanPlayCountryClub(Club thisClub, Club countryClub, int maxDivisionCount,  Dictionary<Guid, List<string>> fixedMatches, IEnumerable<ClubInScenarioInstance> clubsInScenarioInstance)
