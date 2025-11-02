@@ -665,7 +665,7 @@ namespace UEFASwissFormatSelector.Services
                         //    priorityClubs = divisionAndFixtureFreeOpponents.Where(c => !priorityCountryIds.Contains(c.CountryId)).ToList();
                         //if (divisionAndFixtureFreeOpponents.Count() > 2)
                         //    priorityClubs = divisionAndFixtureFreeOpponents.OrderByDescending(c => allOpponent[c.Id].First(p => p.Name == clubPotName).ClubsInPot.Count()).Take(2).ToList();
-                        if (remainingOpponents == 1 && divisionAndFixtureFreeOpponents.Count() > 1)
+                        if ( divisionAndFixtureFreeOpponents.Count() > 1 )
                         {
                             var selectedClubCountryIds = fixedMatches[thisClub.Id].Select(str => GetClub(str, scenarioInstance.ClubsInScenarioInstance)).Select(c => c.CountryId);
                             priorityClubs = divisionAndFixtureFreeOpponents.Where(c => !selectedClubCountryIds.Contains(c.CountryId)).ToList();
