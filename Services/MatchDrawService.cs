@@ -667,8 +667,17 @@ namespace UEFASwissFormatSelector.Services
                         //    priorityClubs = divisionAndFixtureFreeOpponents.OrderByDescending(c => allOpponent[c.Id].First(p => p.Name == clubPotName).ClubsInPot.Count()).Take(2).ToList();
                         if ( divisionAndFixtureFreeOpponents.Count() > 1 )
                         {
-                            var selectedClubCountryIds = fixedMatches[thisClub.Id].Select(str => GetClub(str, scenarioInstance.ClubsInScenarioInstance)).Select(c => c.CountryId);
+                            var selectedClubCountries = fixedMatches[thisClub.Id].Select(str => GetClub(str, scenarioInstance.ClubsInScenarioInstance));
+                            var selectedClubCountryIds = selectedClubCountries.Select(c => c.CountryId);
+                            //clubs that thisClub is not already playing a club from their division
                             priorityClubs = divisionAndFixtureFreeOpponents.Where(c => !selectedClubCountryIds.Contains(c.CountryId)).ToList();
+                            if (priorityClubs.Count() > 1)
+                            {
+                                //filter out possible opponents not already playing a club from thisClub's division
+                                var possibleOpponentsNotPlayingThisClubDivisiom = divisionAndFixtureFreeOpponents.Where(c => !(fixedMatches[c.Id].Select(str => GetClub(str, scenarioInstance.ClubsInScenarioInstance)).Any(c => c.CountryId == thisClub.CountryId)) ).ToList();
+                                if (possibleOpponentsNotPlayingThisClubDivisiom.Count() > 0)
+                                    priorityClubs = possibleOpponentsNotPlayingThisClubDivisiom;
+                            }
                         }
                         var opponentsForClub = FindOpponents(/*remainingOpponents*/1, thisClub.Id, priorityClubs!, /*allPot!*/divisionAndFixtureFreeOpponents!);
                         if (opponentsForClub != null)
