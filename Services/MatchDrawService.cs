@@ -699,13 +699,15 @@ namespace UEFASwissFormatSelector.Services
                         bool opponentAllowed = false;
                         int cnt = 0;
                         int maxCount = divisionAndFixtureFreeOpponents.Count();
+                        ModifiedDictionary<IEnumerable<Pot>>? temporaryAllOpponent = default; 
+                        Dictionary<Guid, List<string>> temporaryFixedMatches = default;
                         do
                         {
                             cnt++;
                             opponentsForClub = FindOpponents(/*remainingOpponents*/1, thisClub.Id, priorityClubs!, /*allPot!*/divisionAndFixtureFreeOpponents!);
                             if (opponentsForClub.Count() == 0)
                                 continue;
-                            opponentAllowed = /*true;//*/IsFixtureAllowed(thisClub, clubPotName, opponentsForClub.First(), oppositionPot.Name, fixedMatches.ToDictionary(), scenarioInstance, numberOfOpponentPerPot, maxOpponenentFromADivision, allOpponent);
+                            (opponentAllowed, temporaryFixedMatches, temporaryAllOpponent) = /*true;//*/IsFixtureAllowed(thisClub, clubPotName, opponentsForClub.First(), oppositionPot.Name, fixedMatches.ToDictionary(), scenarioInstance, numberOfOpponentPerPot, maxOpponenentFromADivision, allOpponent);
                             if (opponentsForClub.Count() == 0)
                                 continue;
                             if (!opponentAllowed)
@@ -733,14 +735,14 @@ namespace UEFASwissFormatSelector.Services
                         //if opponent is playeable without blocking others
                         if (opponentsForClub != null)
                         {
-                            foreach (Club opponent in opponentsForClub)
-                            {
-                                fixedMatches[thisClub.Id].Add(GenerateClubPotName(opponent.Id, oppositionPot.Name));
-                                fixedMatches[opponent.Id].Add(GenerateClubPotName(thisClub.Id, clubPotName));
-                            }
-                            //Update Opponents collection
-                            allOpponent = UpdateAllOpponents(allOpponent, fixedMatches, scenarioInstance, numberOfOpponentPerPot, maxOpponenentFromADivision);
-                            return (true, fixedMatches, allOpponent);
+                            //foreach (Club opponent in opponentsForClub)
+                            //{
+                            //    fixedMatches[thisClub.Id].Add(GenerateClubPotName(opponent.Id, oppositionPot.Name));
+                            //    fixedMatches[opponent.Id].Add(GenerateClubPotName(thisClub.Id, clubPotName));
+                            //}
+                            ////Update Opponents collection
+                            //allOpponent = UpdateAllOpponents(allOpponent, fixedMatches, scenarioInstance, numberOfOpponentPerPot, maxOpponenentFromADivision);
+                            return (true, temporaryFixedMatches, temporaryAllOpponent);
                         }
                     }
 
@@ -749,7 +751,7 @@ namespace UEFASwissFormatSelector.Services
 
             return (false, fixedMatches, allOpponent);
         }
-        private bool IsFixtureAllowed(Club thisClub, string clubPotName, Club opponent, string oppositionPotName, Dictionary<Guid, List<string>> fixMatches, ScenarioInstance scenarioInstance, int numberOfOpponentPerPot, int maxOpponenentFromADivision, ModifiedDictionary<IEnumerable<Pot>>? allOpponent)
+        private (bool, Dictionary<Guid, List<string>>, ModifiedDictionary<IEnumerable<Pot>>?) IsFixtureAllowed(Club thisClub, string clubPotName, Club opponent, string oppositionPotName, Dictionary<Guid, List<string>> fixMatches, ScenarioInstance scenarioInstance, int numberOfOpponentPerPot, int maxOpponenentFromADivision, ModifiedDictionary<IEnumerable<Pot>>? allOpponent)
         {
             var fixedMatches = new Dictionary<Guid, List<string>>(fixMatches);
             var a1 = fixedMatches[thisClub.Id].ToList();
@@ -781,11 +783,11 @@ namespace UEFASwissFormatSelector.Services
                     if (remainingOpponents > prefferedCIP.Count())
                     {
                         //a situation of unmatchable clubs will arise.
-                        return false;
+                        return ((false, null, null));
                     }
                 }
             }
-            return true;
+            return ((true, fixedMatches, newAllOpponent));
         }
         private bool ThisClubCanPlayCountryClub(Club thisClub, Club countryClub, int maxDivisionCount,  Dictionary<Guid, List<string>> fixedMatches, IEnumerable<ClubInScenarioInstance> clubsInScenarioInstance)
         {
