@@ -115,8 +115,16 @@ namespace UEFASwissFormatSelector.Services
                 int remainderOppponents = numberOfOpponent - preferredOppponents.Count();
                 var unselectedClubs = allPot.Where(c => c.Id != forClubId && !preferredOppponents.Contains(c)).ToList();
                 var remainder = PickOpponents(remainderOppponents, unselectedClubs);
-                preferredOppponents.AddRange(remainder);
-                return preferredOppponents;
+                var newList = new List<Club>();
+                foreach (Club item in preferredOppponents)
+                {
+                    newList.Add(item);
+                }
+                foreach (Club item in remainder.ToList())
+                {
+                    newList.Add(item);
+                }
+                return newList;
             }
 
         }
@@ -632,8 +640,14 @@ namespace UEFASwissFormatSelector.Services
                     var fixtureFreeOpponents = pot.ClubsInPot.Where(cip => !ClubHasFixtureAgainst(cip.ClubId, thisClub.Id, fixedMatches) && !ClubPotFixtureFull(cip.ClubId, clubPotName, fixedMatches, numberOfOpponentPerPot)).Select(cip => cip.Club).ToList();
                     var divisionAndFixtureFreeOpponentIds = fixtureFreeOpponents.Where(countryClub => ThisClubCanPlayCountryClub(countryClub, thisClub, maxOpponenentFromADivision, fixedMatches, scenarioInstance.ClubsInScenarioInstance)).Select(c=>c.Id).ToList();
                     var prefferedCIP = pot.ClubsInPot.Where(cip => divisionAndFixtureFreeOpponentIds.Contains(cip.ClubId)).ToList();
-                    pot.ClubsInPot = prefferedCIP;
-                    kvpPots.Add(pot);
+                    //pot.ClubsInPot = prefferedCIP;
+                    kvpPots.Add(new Pot(pot.Name, pot.ClubsInPot.Count())
+                    {
+                        Id = pot.Id,
+                        IsOpponentPot = pot.IsOpponentPot,
+                        ScenarioInstanceId = pot.ScenarioInstanceId,
+                        ClubsInPot = prefferedCIP
+                    });
                 }
                 newAllOpponents[opponentKvp.Key] = kvpPots;
             }
@@ -676,10 +690,47 @@ namespace UEFASwissFormatSelector.Services
                                 //filter out possible opponents not already playing a club from thisClub's division
                                 var possibleOpponentsNotPlayingThisClubDivisiom = divisionAndFixtureFreeOpponents.Where(c => !(fixedMatches[c.Id].Select(str => GetClub(str, scenarioInstance.ClubsInScenarioInstance)).Any(c => c.CountryId == thisClub.CountryId)) ).ToList();
                                 if (possibleOpponentsNotPlayingThisClubDivisiom.Count() > 0)
-                                    priorityClubs = possibleOpponentsNotPlayingThisClubDivisiom;
+                                    priorityClubs = possibleOpponentsNotPlayingThisClubDivisiom.ToList();
                             }
                         }
-                        var opponentsForClub = FindOpponents(/*remainingOpponents*/1, thisClub.Id, priorityClubs!, /*allPot!*/divisionAndFixtureFreeOpponents!);
+                        if (priorityClubs.Count + divisionAndFixtureFreeOpponents.Count == 0)
+                            continue;
+                        var opponentsForClub = new List<Club>();
+                        bool opponentAllowed = false;
+                        int cnt = 0;
+                        int maxCount = divisionAndFixtureFreeOpponents.Count();
+                        do
+                        {
+                            cnt++;
+                            opponentsForClub = FindOpponents(/*remainingOpponents*/1, thisClub.Id, priorityClubs!, /*allPot!*/divisionAndFixtureFreeOpponents!);
+                            if (opponentsForClub.Count() == 0)
+                                continue;
+                            opponentAllowed = /*true;//*/IsFixtureAllowed(thisClub, clubPotName, opponentsForClub.First(), oppositionPot.Name, fixedMatches.ToDictionary(), scenarioInstance, numberOfOpponentPerPot, maxOpponenentFromADivision, allOpponent);
+                            if (opponentsForClub.Count() == 0)
+                                continue;
+                            if (!opponentAllowed)
+                            {
+                                //removal of less than ideal club from possible choices
+                                if (priorityClubs.Count() > 0)
+                                {
+                                    if (opponentsForClub.Count() == 0)
+                                        continue;
+                                    var opp = priorityClubs.First(c => c.Id == opponentsForClub.First().Id);
+                                    priorityClubs.Remove(opp);
+                                }
+                                if (divisionAndFixtureFreeOpponents.Count() > 0)
+                                {
+                                    if (opponentsForClub.Count() == 0)
+                                        continue;
+                                    var opp = divisionAndFixtureFreeOpponents.First(c => c.Id == opponentsForClub.First().Id);
+                                    divisionAndFixtureFreeOpponents.Remove(opp);
+                                }
+                            }
+
+                        } while (!opponentAllowed && priorityClubs.Count + divisionAndFixtureFreeOpponents.Count > 0 && cnt < maxCount);
+                        if (!opponentAllowed)
+                            continue;
+                        //if opponent is playeable without blocking others
                         if (opponentsForClub != null)
                         {
                             foreach (Club opponent in opponentsForClub)
@@ -698,7 +749,44 @@ namespace UEFASwissFormatSelector.Services
 
             return (false, fixedMatches, allOpponent);
         }
+        private bool IsFixtureAllowed(Club thisClub, string clubPotName, Club opponent, string oppositionPotName, Dictionary<Guid, List<string>> fixMatches, ScenarioInstance scenarioInstance, int numberOfOpponentPerPot, int maxOpponenentFromADivision, ModifiedDictionary<IEnumerable<Pot>>? allOpponent)
+        {
+            var fixedMatches = new Dictionary<Guid, List<string>>(fixMatches);
+            var a1 = fixedMatches[thisClub.Id].ToList();
+            a1.Add(GenerateClubPotName(opponent.Id, oppositionPotName));
+            fixedMatches[thisClub.Id] = a1;
+            //fixedMatches[thisClub.Id].Add(GenerateClubPotName(opponent.Id, oppositionPotName));
+            var b1 = fixedMatches[opponent.Id].ToList();
+            b1.Add(GenerateClubPotName(thisClub.Id, clubPotName));
+            fixedMatches[opponent.Id] = b1;
+            //fixedMatches[opponent.Id].Add(GenerateClubPotName(thisClub.Id, clubPotName));
 
+            var newAllOpponent = UpdateAllOpponents(allOpponent, fixedMatches, scenarioInstance, numberOfOpponentPerPot, maxOpponenentFromADivision);
+
+            foreach (KeyValuePair<Guid, IEnumerable<Pot>> opponentKvp in newAllOpponent.GetAsDictionary())
+            {
+                Club thisKvpClub = scenarioInstance.ClubsInScenarioInstance.FirstOrDefault(c => c.ClubId == opponentKvp.Key)?.Club!;
+                string kvpClubPotName = GetClubPotName(thisKvpClub.Id, scenarioInstance.Pots);
+                var kvpPots = new List<Pot>();
+                foreach (Pot pot in opponentKvp.Value)
+                {
+                    int remainingOpponents = numberOfOpponentPerPot - FoundOpponentsInPot(pot.Name, thisClub.Id, fixedMatches);
+                    if (remainingOpponents == 0)
+                        continue;
+                    var fixtureFreeOpponents = pot.ClubsInPot.Where(cip => !ClubHasFixtureAgainst(cip.ClubId, thisKvpClub.Id, fixedMatches) && !ClubPotFixtureFull(cip.ClubId, kvpClubPotName, fixedMatches, numberOfOpponentPerPot)).Select(cip => cip.Club).ToList();
+                    var divisionAndFixtureFreeOpponentIds = fixtureFreeOpponents.Where(countryClub => ThisClubCanPlayCountryClub(countryClub, thisKvpClub, maxOpponenentFromADivision, fixedMatches, scenarioInstance.ClubsInScenarioInstance)).Select(c => c.Id).ToList();
+                    var prefferedCIP = pot.ClubsInPot.Where(cip => divisionAndFixtureFreeOpponentIds.Contains(cip.ClubId)).ToList();
+                    //pot.ClubsInPot = prefferedCIP;
+                    //kvpPots.Add(pot);
+                    if (remainingOpponents > prefferedCIP.Count())
+                    {
+                        //a situation of unmatchable clubs will arise.
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
         private bool ThisClubCanPlayCountryClub(Club thisClub, Club countryClub, int maxDivisionCount,  Dictionary<Guid, List<string>> fixedMatches, IEnumerable<ClubInScenarioInstance> clubsInScenarioInstance)
         {
             Dictionary<Guid, List<Club>> fixedMatchesFull = new Dictionary<Guid, List<Club>>();
