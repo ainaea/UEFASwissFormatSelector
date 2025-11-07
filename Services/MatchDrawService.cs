@@ -497,10 +497,11 @@ namespace UEFASwissFormatSelector.Services
             int loopSafetyCOunter = 0;
             bool flowControl;
             List<Guid> priorityCountryIds = GetPriorityCountryIds(scenarioInstance.ClubsInScenarioInstance);
+            List<String> stuckClubPots = new List<String>();
             //Fix matches one at a time starting with the team with least options and then repeat the process
             do
             {
-                (flowControl, fixedMatches, allOpponent) = SelectedOpponentForLeastMatcheableClub(scenarioInstance, numberOfOpponentPerPot, fixedMatches, maxOpponenentFromADivision, allOpponent, potClubsCount, priorityCountryIds);
+                (flowControl, fixedMatches, allOpponent) = SelectedOpponentForLeastMatcheableClub(scenarioInstance, numberOfOpponentPerPot, fixedMatches, maxOpponenentFromADivision, allOpponent, potClubsCount, priorityCountryIds, stuckClubPots);
                 loopSafetyCOunter++;
             } while (flowControl && loopSafetyCOunter < expectedMatchCount * fixedMatches.Keys.Count() * 0.75);
             for (int i = 0; i < 3; i++)
@@ -595,17 +596,9 @@ namespace UEFASwissFormatSelector.Services
                         fixedMatches[selectedsCIOPWIPFClubOpponent.Id].Remove(str2);
                         List<string> fgh = new List<string>();
                         fixedMatches[thisClub.Id].Add(GenerateClubPotName(selectedThisClubOpponent.Id, opponentPotname));
-                        if (fixedMatches[thisClub.Id].Count > expectedMatchCount)
-                            fgh = fixedMatches[thisClub.Id];
                         fixedMatches[selectedThisClubOpponent.Id].Add(GenerateClubPotName(thisClub.Id, clubPotName));
-                        if (fixedMatches[selectedThisClubOpponent.Id].Count() > expectedMatchCount)
-                            fgh = fixedMatches[selectedThisClubOpponent.Id];
                         fixedMatches[sCIOPWIPF.Id].Add(GenerateClubPotName(selectedsCIOPWIPFClubOpponent.Id, clubPotName));
-                        if (fixedMatches[sCIOPWIPF.Id].Count() > expectedMatchCount)
-                            fgh = fixedMatches[sCIOPWIPF.Id];
-                        fixedMatches[selectedsCIOPWIPFClubOpponent.Id].Add(GenerateClubPotName(sCIOPWIPF.Id, opponentPotname));
-                        if (fixedMatches[selectedsCIOPWIPFClubOpponent.Id].Count() > expectedMatchCount)
-                            fgh = fixedMatches[selectedsCIOPWIPFClubOpponent.Id];
+                        fixedMatches[selectedsCIOPWIPFClubOpponent.Id].Add(GenerateClubPotName(sCIOPWIPF.Id, opponentPotname));                        
                     }
                 }
             }
@@ -653,7 +646,7 @@ namespace UEFASwissFormatSelector.Services
             }
             return newAllOpponents;
         }
-        private (bool,  Dictionary<Guid, List<string>>, ModifiedDictionary<IEnumerable<Pot>>?) SelectedOpponentForLeastMatcheableClub(ScenarioInstance scenarioInstance, int numberOfOpponentPerPot, Dictionary<Guid, List<string>> fixedMatches, int maxOpponenentFromADivision, ModifiedDictionary<IEnumerable<Pot>>? allOpponent, int potClubsCount, List<Guid> priorityCountryIds)
+        private (bool,  Dictionary<Guid, List<string>>, ModifiedDictionary<IEnumerable<Pot>>?) SelectedOpponentForLeastMatcheableClub(ScenarioInstance scenarioInstance, int numberOfOpponentPerPot, Dictionary<Guid, List<string>> fixedMatches, int maxOpponenentFromADivision, ModifiedDictionary<IEnumerable<Pot>>? allOpponent, int potClubsCount, List<Guid> priorityCountryIds, List<String> stuckClubPots)
         {
             foreach (KeyValuePair<Guid, IEnumerable<Pot>> clubDictionary in allOpponent.GetAsDictionary().OrderBy(kvp=> fixedMatches[kvp.Key].Count()).ThenBy(kvp => kvp.Value.Min(p => {int c = p.ClubsInPot.Count(); return c == 0 ? potClubsCount+1 : c; })).ThenByDescending(kvp => {int minCount = kvp.Value.Min(p => p.ClubsInPot.Count()); var potNames = kvp.Value.Where(p => p.ClubsInPot.Count() == minCount).Select(p => p.Name).ToList() ; return potNames.Max(pn => fixedMatches[kvp.Key].Where(fx => fx.Contains(pn)).Count()); }))
             {
@@ -661,6 +654,8 @@ namespace UEFASwissFormatSelector.Services
                 string clubPotName = GetClubPotName(thisClub.Id, scenarioInstance.Pots);
                 foreach (var oppositionPot in clubDictionary.Value.OrderBy(p => { int c = p.ClubsInPot.Count(); return c == 0 ? potClubsCount + 1 : c;}))
                 {
+                    if (stuckClubPots.Contains(GenerateClubPotName(thisClub.Id, oppositionPot.Name)))
+                        continue;
                     //NB: opposition pot already has club from the same division as thisClub filtered out
                     int remainingOpponents = numberOfOpponentPerPot - FoundOpponentsInPot(oppositionPot.Name, thisClub.Id, fixedMatches);
                     //get list of best opponents for this club from pot
@@ -727,6 +722,8 @@ namespace UEFASwissFormatSelector.Services
                                     var opp = divisionAndFixtureFreeOpponents.First(c => c.Id == opponentsForClub.First().Id);
                                     divisionAndFixtureFreeOpponents.Remove(opp);
                                 }
+                                if (divisionAndFixtureFreeOpponents.Count() == 0)
+                                    stuckClubPots.Add(GenerateClubPotName(thisClub.Id, oppositionPot.Name));
                             }
 
                         } while (!opponentAllowed && priorityClubs.Count + divisionAndFixtureFreeOpponents.Count > 0 && cnt < maxCount);
