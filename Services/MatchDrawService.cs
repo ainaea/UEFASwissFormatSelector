@@ -648,7 +648,7 @@ namespace UEFASwissFormatSelector.Services
         }
         private (bool,  Dictionary<Guid, List<string>>, ModifiedDictionary<IEnumerable<Pot>>?) SelectedOpponentForLeastMatcheableClub(ScenarioInstance scenarioInstance, int numberOfOpponentPerPot, Dictionary<Guid, List<string>> fixedMatches, int maxOpponenentFromADivision, ModifiedDictionary<IEnumerable<Pot>>? allOpponent, int potClubsCount, List<Guid> priorityCountryIds, List<String> stuckClubPots)
         {
-            foreach (KeyValuePair<Guid, IEnumerable<Pot>> clubDictionary in allOpponent.GetAsDictionary().OrderBy(kvp=> fixedMatches[kvp.Key].Count()).ThenBy(kvp => kvp.Value.Min(p => {int c = p.ClubsInPot.Count(); return c == 0 ? potClubsCount+1 : c; })).ThenByDescending(kvp => {int minCount = kvp.Value.Min(p => p.ClubsInPot.Count()); var potNames = kvp.Value.Where(p => p.ClubsInPot.Count() == minCount).Select(p => p.Name).ToList() ; return potNames.Max(pn => fixedMatches[kvp.Key].Where(fx => fx.Contains(pn)).Count()); }))
+            foreach (KeyValuePair<Guid, IEnumerable<Pot>> clubDictionary in allOpponent.GetAsDictionary().OrderBy(kvp=> fixedMatches[kvp.Key].Count()).ThenBy(kvp => kvp.Value.Min(p => {int c = p.ClubsInPot.Count(); return c == 0 ? potClubsCount+1 : c; })).ThenByDescending(kvp => {int minCount = kvp.Value.Min(p => p.ClubsInPot.Count()); var potNames = kvp.Value.Where(p => p.ClubsInPot.Count() == minCount).Select(p => p.Name).ToList() ; return potNames.Min(pn => fixedMatches[kvp.Key].Where(fx => fx.Contains(pn)).Count()); }))
             {
                 Club thisClub = scenarioInstance.ClubsInScenarioInstance.FirstOrDefault(c => c.ClubId == clubDictionary.Key)?.Club!;
                 string clubPotName = GetClubPotName(thisClub.Id, scenarioInstance.Pots);
