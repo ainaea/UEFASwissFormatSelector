@@ -777,7 +777,8 @@ namespace UEFASwissFormatSelector.Services
                     var prefferedCIP = pot.ClubsInPot.Where(cip => divisionAndFixtureFreeOpponentIds.Contains(cip.ClubId)).ToList();
                     //pot.ClubsInPot = prefferedCIP;
                     //kvpPots.Add(pot);
-                    if (remainingOpponents > prefferedCIP.Count())
+                    int adjuster = remainingOpponents > 1 ? 1 : 0;
+                    if (remainingOpponents + adjuster > prefferedCIP.Count())
                     {
                         //a situation of unmatchable clubs will arise.
                         return ((false, null, null));
