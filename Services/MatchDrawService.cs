@@ -796,6 +796,11 @@ namespace UEFASwissFormatSelector.Services
             return thisClubCountryCount < maxDivisionCount && thisCountryClubCountryCount < maxDivisionCount;
         }
 
+        private bool ThisClubIsPlayingDivision(Club thisClub, Club countryClub, int maxDivisionCount, Dictionary<Guid, List<string>> fixedMatches, IEnumerable<ClubInScenarioInstance> clubsInScenarioInstance)
+        {
+            return ThisClubCanPlayCountryClub(thisClub, countryClub, 1, fixedMatches, clubsInScenarioInstance);
+        }
+
         private Dictionary<Guid, List<Club>> GenerateFixedMatchesFull(Dictionary<Guid, List<string>> fixedMatches, IEnumerable<ClubInScenarioInstance> clubsInScenarioInstance)
         {
             Dictionary<Guid, List<Club>> fixedMatchesFull = new Dictionary<Guid, List<Club>>();
