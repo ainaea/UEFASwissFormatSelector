@@ -484,7 +484,7 @@ namespace UEFASwissFormatSelector.Services
         {
             Dictionary<Guid, List<string>> fixedMatches = new Dictionary<Guid, List<string>>();     //Guid is for clubId and string is the concatination of format "opponentCludId_potname"
             Dictionary<Guid, List<Club>> fixedMatchesFull = new Dictionary<Guid, List<Club>>();
-            foreach (Club club in scenarioInstance.ClubsInScenarioInstance.Select(c => c.Club).ToList())
+            foreach (Club club in scenarioInstance.ClubsInScenarioInstance.OrderByDescending(cisi => cisi.Ranking).Select(c => c.Club).ToList())
             {
                 fixedMatches[club!.Id] = new List<string>();
                 fixedMatchesFull[club.Id] = new List<Club>();
