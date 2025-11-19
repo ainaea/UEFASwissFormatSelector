@@ -851,7 +851,18 @@ namespace UEFASwissFormatSelector.Services
                 fixedMatches[club!.Id] = new List<string>();
                 fixedMatchesFull[club.Id] = new List<Club>();
             }
-            List<String> potNames = scenarioInstance.Pots.Select(p => p.Name).OrderBy(str=>str).ToList();
+            Dictionary<string, List<Guid>> stats = new Dictionary<string, List<Guid>>();
+            foreach (Pot pot in scenarioInstance.Pots)
+            {
+                stats[pot.Name] = new List<Guid>();
+                var currStat = stats[pot.Name];
+                foreach (ClubInPot cip in pot.ClubsInPot)
+                {
+                    if (!currStat.Contains(cip.Club.CountryId))
+                        currStat.Add(cip.Club.CountryId);
+                }
+            }
+            var potNames = stats.OrderBy(kvp => kvp.Value.Count()).Select(kvp => kvp.Key).ToList();
             int maxOpponenentFromADivision = 2;
             var allOpponent = Duplicate(scenarioInstance.Opponents);
             int potClubsCount = scenarioInstance.Pots.First().ClubsInPot.Count();
@@ -868,8 +879,6 @@ namespace UEFASwissFormatSelector.Services
                 {
                     if (potNames.IndexOf(potname) > potNames.IndexOf(secondPotname))
                         continue;
-                    //var secondPot = scenarioInstance.Pots.First(p => p.Name == secondPotname);
-                    //var secondPotCLubs = secondPot.ClubsInPot.Select(cip => cip.Club).ToList();
                     int loopSafetyCounter = 0;
                     bool flowControl = false;
                     do {
@@ -962,13 +971,6 @@ namespace UEFASwissFormatSelector.Services
                             //if opponent is playeable without blocking others
                             if (opponentsForClub != null)
                             {
-                                //foreach (Club opponent in opponentsForClub)
-                                //{
-                                //    fixedMatches[thisClub.Id].Add(GenerateClubPotName(opponent.Id, oppositionPot.Name));
-                                //    fixedMatches[opponent.Id].Add(GenerateClubPotName(thisClub.Id, clubPotName));
-                                //}
-                                ////Update Opponents collection
-                                //allOpponent = UpdateAllOpponents(allOpponent, fixedMatches, scenarioInstance, numberOfOpponentPerPot, maxOpponenentFromADivision);
                                 (flowControl, fixedMatches, allOpponent) = (true, temporaryFixedMatches, temporaryAllOpponent);
                             }
                         }
