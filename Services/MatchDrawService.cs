@@ -607,6 +607,7 @@ namespace UEFASwissFormatSelector.Services
 
         public (Dictionary<Guid, List<Club>>, Dictionary<Guid, List<string>>) DoMatchUps(ScenarioInstance scenarioInstance, int numberOfOpponentPerPot)
         {
+            return PotXPotDoMatchUps(scenarioInstance, numberOfOpponentPerPot);
             int loopCount = 0;
             int expectedMatchCount = scenarioInstance.Pots.Count() * numberOfOpponentPerPot;
             Dictionary<Guid, List<string>> fixedMatches = new Dictionary<Guid, List<string>>();     //Guid is for clubId and string is the concatination of format "opponentCludId_potname"
@@ -614,9 +615,9 @@ namespace UEFASwissFormatSelector.Services
             do
             {
                 (fixedMatchesFull, fixedMatches) = LocalDoMatchUps(scenarioInstance, numberOfOpponentPerPot);
-                loopCount++;
+                //loopCount++;
             } 
-            while (loopCount < 3 && fixedMatches.Any(kvp=> kvp.Value.Count() != expectedMatchCount));
+            while (loopCount < 3 && !fixedMatches.Any(kvp=> kvp.Value.Count() != expectedMatchCount));
             return (fixedMatchesFull, fixedMatches);
         }
 
@@ -772,13 +773,8 @@ namespace UEFASwissFormatSelector.Services
                     int remainingOpponents = numberOfOpponentPerPot - FoundOpponentsInPot(pot.Name, thisClub.Id, fixedMatches);
                     if (remainingOpponents == 0)
                         continue;
-                    var fixtureFreeOpponents = pot.ClubsInPot.Where(cip => !ClubHasFixtureAgainst(cip.ClubId, thisKvpClub.Id, fixedMatches) && !ClubPotFixtureFull(cip.ClubId, kvpClubPotName, fixedMatches, numberOfOpponentPerPot)).Select(cip => cip.Club).ToList();
-                    var divisionAndFixtureFreeOpponentIds = fixtureFreeOpponents.Where(countryClub => ThisClubCanPlayCountryClub(countryClub, thisKvpClub, maxOpponenentFromADivision, fixedMatches, scenarioInstance.ClubsInScenarioInstance)).Select(c => c.Id).ToList();
-                    var prefferedCIP = pot.ClubsInPot.Where(cip => divisionAndFixtureFreeOpponentIds.Contains(cip.ClubId)).ToList();
-                    //pot.ClubsInPot = prefferedCIP;
-                    //kvpPots.Add(pot);
-                    int adjuster = remainingOpponents > 1 ? 1 : 0;
-                    if (remainingOpponents + adjuster > prefferedCIP.Count())
+                    var prefferedCIP = pot.ClubsInPot.ToList();
+                    if (remainingOpponents > prefferedCIP.Count() && prefferedCIP.Count()!= allOpponent[opponentKvp.Key].First(p=>p.Name == pot.Name).ClubsInPot.Count())
                     {
                         //a situation of unmatchable clubs will arise.
                         return ((false, null, null));
@@ -796,7 +792,7 @@ namespace UEFASwissFormatSelector.Services
             return thisClubCountryCount < maxDivisionCount && thisCountryClubCountryCount < maxDivisionCount;
         }
 
-        private bool ThisClubIsPlayingDivision(Club thisClub, Club countryClub, int maxDivisionCount, Dictionary<Guid, List<string>> fixedMatches, IEnumerable<ClubInScenarioInstance> clubsInScenarioInstance)
+        private bool ThisClubIsPlayingDivision(Club thisClub, Club countryClub, Dictionary<Guid, List<string>> fixedMatches, IEnumerable<ClubInScenarioInstance> clubsInScenarioInstance)
         {
             return !ThisClubCanPlayCountryClub(thisClub, countryClub, 1, fixedMatches, clubsInScenarioInstance);
         }
@@ -841,7 +837,174 @@ namespace UEFASwissFormatSelector.Services
             }            
             return result;
         }
-        
+
+        #endregion
+
+        #region PotToPotApproachTopDown
+        private (Dictionary<Guid, List<Club>>, Dictionary<Guid, List<string>>) PotXPotDoMatchUps(ScenarioInstance scenarioInstance, int numberOfOpponentPerPot)
+        {
+            int expectedMatchCount = scenarioInstance.Pots.Count() * numberOfOpponentPerPot;
+            Dictionary<Guid, List<string>> fixedMatches = new Dictionary<Guid, List<string>>();     //Guid is for clubId and string is the concatination of format "opponentCludId_potname"
+            Dictionary<Guid, List<Club>> fixedMatchesFull = new Dictionary<Guid, List<Club>>();
+            foreach (Club club in scenarioInstance.ClubsInScenarioInstance.OrderByDescending(cisi => cisi.Ranking).Select(c => c.Club).ToList())
+            {
+                fixedMatches[club!.Id] = new List<string>();
+                fixedMatchesFull[club.Id] = new List<Club>();
+            }
+            List<String> potNames = scenarioInstance.Pots.Select(p => p.Name).OrderBy(str=>str).ToList();
+            int maxOpponenentFromADivision = 2;
+            var allOpponent = Duplicate(scenarioInstance.Opponents);
+            int potClubsCount = scenarioInstance.Pots.First().ClubsInPot.Count();
+            
+            int clubsPerPot = scenarioInstance.Pots.First().ClubsInPot.Count();
+            
+            List<string> stuckClubPots = new List<string>();
+
+            foreach (string potname in potNames)
+            {
+                var firstPot = scenarioInstance.Pots.First(p => p.Name == potname);
+                var firstPotCLubs = firstPot.ClubsInPot.Select(cip => cip.Club).ToList();
+                foreach (string secondPotname in potNames)
+                {
+                    if (potNames.IndexOf(potname) > potNames.IndexOf(secondPotname))
+                        continue;
+                    //var secondPot = scenarioInstance.Pots.First(p => p.Name == secondPotname);
+                    //var secondPotCLubs = secondPot.ClubsInPot.Select(cip => cip.Club).ToList();
+                    int loopSafetyCounter = 0;
+                    bool flowControl = false;
+                    do {
+                        loopSafetyCounter++;
+                        var orderedFirstPot = firstPotCLubs.Where(c => (FoundOpponentsInPot(secondPotname, c.Id, fixedMatches) < numberOfOpponentPerPot) && !stuckClubPots.Contains( GenerateClubPotName( c.Id, secondPotname))).OrderBy(c => FoundOpponentsInPot(secondPotname, c.Id, fixedMatches)).ThenBy(c => allOpponent[c.Id].First(p => p.Name == secondPotname).ClubsInPot.Count()).ToList();
+
+                        if (orderedFirstPot.Count() == 0) 
+                            break;
+
+                        Club thisClub = orderedFirstPot[0];
+                        string clubPotName = potname;
+                        if (stuckClubPots.Contains(GenerateClubPotName(thisClub.Id, secondPotname)))
+                            continue;
+
+                        int remainingOpponents = numberOfOpponentPerPot - FoundOpponentsInPot(secondPotname, thisClub.Id, fixedMatches);
+                        if (remainingOpponents > 0)
+                        {
+                            var divisionAndFixtureFreeOpponents = allOpponent[thisClub.Id].First(p => p.Name == secondPotname).ClubsInPot.Select(cip => cip.Club).ToList();
+                            
+                            if (divisionAndFixtureFreeOpponents.Count() == 0)
+                                continue;
+
+                            var priorityClubs = new List<Club>();
+                            if (divisionAndFixtureFreeOpponents.Count() > 1)
+                            {
+                                priorityClubs = divisionAndFixtureFreeOpponents.Where(c=> !ThisClubIsPlayingDivision(thisClub, c, fixedMatches, scenarioInstance.ClubsInScenarioInstance)).ToList();
+                                if (priorityClubs.Count() == 0)
+                                {
+                                    var selectedClubCountries = fixedMatches[thisClub.Id].Select(str => GetClub(str, scenarioInstance.ClubsInScenarioInstance));
+                                    var selectedClubCountryIds = selectedClubCountries.Select(c => c.CountryId);
+                                    //clubs that thisClub is not already playing a club from their division
+                                    priorityClubs = divisionAndFixtureFreeOpponents.Where(c => !selectedClubCountryIds.Contains(c.CountryId)).ToList();
+                                    if (priorityClubs.Count() > 1)
+                                    {
+                                        //filter out possible opponents not already playing a club from thisClub's division
+                                        var possibleOpponentsNotPlayingThisClubDivisiom = divisionAndFixtureFreeOpponents.Where(c => !(fixedMatches[c.Id].Select(str => GetClub(str, scenarioInstance.ClubsInScenarioInstance)).Any(c => c.CountryId == thisClub.CountryId))).ToList();
+                                        if (possibleOpponentsNotPlayingThisClubDivisiom.Count() > 0)
+                                            priorityClubs = possibleOpponentsNotPlayingThisClubDivisiom.ToList();
+                                        if (priorityClubs.Count() > 0)
+                                            stuckClubPots.Any();
+                                    }
+                                }
+                                priorityClubs = priorityClubs.OrderBy(c => FoundOpponentsInPot(potname, c.Id, fixedMatches)).ThenBy(c => allOpponent[c.Id].First(p => p.Name == potname).ClubsInPot.Count()).Take(numberOfOpponentPerPot + 1).ToList();
+                            }
+                            if (priorityClubs.Count() == 0)
+                            priorityClubs = divisionAndFixtureFreeOpponents.OrderBy(c => FoundOpponentsInPot(potname, c.Id, fixedMatches)).ThenBy(c => allOpponent[c.Id].First(p => p.Name == potname).ClubsInPot.Count()).Take(numberOfOpponentPerPot + 1).ToList();
+
+                            if (priorityClubs.Count + divisionAndFixtureFreeOpponents.Count == 0)
+                                continue;
+                            var opponentsForClub = new List<Club>();
+                            bool opponentAllowed = false;
+                            int cnt = 0;
+                            int maxCount = divisionAndFixtureFreeOpponents.Count();
+                            ModifiedDictionary<IEnumerable<Pot>>? temporaryAllOpponent = default;
+                            Dictionary<Guid, List<string>> temporaryFixedMatches = default;
+                            int loopCounter = clubsPerPot * numberOfOpponentPerPot;
+                            do
+                            {
+                                cnt++;
+                                opponentsForClub = FindOpponents(/*remainingOpponents*/1, thisClub.Id, priorityClubs!, /*allPot!*/divisionAndFixtureFreeOpponents!);
+                                if (opponentsForClub.Count() == 0)
+                                    continue;
+                                (opponentAllowed, temporaryFixedMatches, temporaryAllOpponent) = /*true;//*/IsFixtureAllowed(thisClub, clubPotName, opponentsForClub.First(), secondPotname, fixedMatches.ToDictionary(), scenarioInstance, numberOfOpponentPerPot, maxOpponenentFromADivision, allOpponent);
+                                if (opponentsForClub.Count() == 0)
+                                    continue;
+                                if (!opponentAllowed)
+                                {
+                                    //removal of less than ideal club from possible choices
+                                    if (priorityClubs.Count() > 0)
+                                    {
+                                        if (opponentsForClub.Count() == 0)
+                                            continue;
+                                        var opp = priorityClubs.First(c => c.Id == opponentsForClub.First().Id);
+                                        priorityClubs.Remove(opp);
+                                    }
+                                    if (divisionAndFixtureFreeOpponents.Count() > 0)
+                                    {
+                                        if (opponentsForClub.Count() == 0)
+                                            continue;
+                                        var opp = divisionAndFixtureFreeOpponents.First(c => c.Id == opponentsForClub.First().Id);
+                                        divisionAndFixtureFreeOpponents.Remove(opp);
+                                    }
+                                    if (divisionAndFixtureFreeOpponents.Count() == 0)
+                                        stuckClubPots.Add(GenerateClubPotName(thisClub.Id, secondPotname));
+                                }
+
+                            } while (!opponentAllowed && priorityClubs.Count + divisionAndFixtureFreeOpponents.Count > 0 && cnt < maxCount);
+                            if (!opponentAllowed)
+                                continue;
+                            //if opponent is playeable without blocking others
+                            if (opponentsForClub != null)
+                            {
+                                //foreach (Club opponent in opponentsForClub)
+                                //{
+                                //    fixedMatches[thisClub.Id].Add(GenerateClubPotName(opponent.Id, oppositionPot.Name));
+                                //    fixedMatches[opponent.Id].Add(GenerateClubPotName(thisClub.Id, clubPotName));
+                                //}
+                                ////Update Opponents collection
+                                //allOpponent = UpdateAllOpponents(allOpponent, fixedMatches, scenarioInstance, numberOfOpponentPerPot, maxOpponenentFromADivision);
+                                (flowControl, fixedMatches, allOpponent) = (true, temporaryFixedMatches, temporaryAllOpponent);
+                            }
+                        }
+                    }
+                    while (loopSafetyCounter<clubsPerPot* numberOfOpponentPerPot && flowControl);
+                
+                }
+            }
+            for (int i = 0; i < 3; i++)
+            {
+                scenarioInstance.Opponents.RePopulate(GenerateOpponentsForAllClubs(scenarioInstance));
+                if (fixedMatches.Any(kvp => kvp.Value.Count() != expectedMatchCount))
+                {
+                    fixedMatches = SwapFixtureFixing(scenarioInstance, numberOfOpponentPerPot, fixedMatches, expectedMatchCount, potNames, maxOpponenentFromADivision);
+                }
+                else
+                    break;
+            }
+            fixedMatchesFull = GenerateFixedMatchesFull(fixedMatches, scenarioInstance.ClubsInScenarioInstance);
+            if (!scenarioInstance.Scenario.HomeAndAwayPerOpponent)
+            {
+                int minHomeMatchCount = scenarioInstance.Scenario.NumberOfGamesPerPot / 2;
+                int maxHomeMatchCount = minHomeMatchCount + scenarioInstance.Scenario.NumberOfGamesPerPot % 2;
+                foreach (var kvp in fixedMatches)
+                {
+                    string kvpPot = GetClubPotName(kvp.Key, scenarioInstance.Pots);
+                    foreach (String potName in potNames)
+                    {
+                        var possiblePotHomeOpponent = GetPossiblePotHomeOpponents(fixedMatches, potName, kvp.Key, maxHomeMatchCount, kvpPot);
+                        var selectedHomeOpponents = SelectHomeOpponents(possiblePotHomeOpponent, minHomeMatchCount);
+                        fixedMatches = UpdateFixedMatchesLocation(fixedMatches, kvp.Key, selectedHomeOpponents, potName);
+                    }
+                }
+            }
+            return (fixedMatchesFull, fixedMatches);
+        }
         #endregion
 
     }
