@@ -388,20 +388,21 @@ namespace UEFASwissFormatSelector.Services
         {
             return fixedMatches[firstClubId].Any(fm => fm.Contains(secondClubId.ToString()));
         }
+        private const char separator = '_';
         private string GenerateClubPotName(Guid? clubId, string potName)
         {
-            return $"{clubId?.ToString() ?? string.Empty}_{potName}";
+            return $"{clubId?.ToString() ?? string.Empty}{separator}{potName}";
         }
         private Guid ExtractClubId_Club_PotName(string str)
         {
-            return new Guid(str.Split('_')[0].ToString());
+            return new Guid(str.Split(separator)[0].ToString());
         }
         private Club GetClub(string str, IEnumerable<ClubInScenarioInstance> clubsInScenarioInstance)
         {
             var id = ExtractClubId_Club_PotName(str);
             return clubsInScenarioInstance.First(cisi => cisi.Club!.Id == id).Club!;
         }
-        private string HomeAwayString(bool home) => $"_{home}";
+        private string HomeAwayString(bool home) => $"{separator}{home}";
         private List<Guid> GetPossiblePotHomeOpponents(Dictionary<Guid, List<string>> fixedMatches, string opponemtPotName, Guid clubId, int maxHomeMatch, string clubPotName)
         {
             var possibleHomeOpponents = new List<Guid>();
