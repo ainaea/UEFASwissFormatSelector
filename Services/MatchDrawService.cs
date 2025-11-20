@@ -378,7 +378,7 @@ namespace UEFASwissFormatSelector.Services
         }
         private bool ClubPotFixtureFull(Guid clubId, string againstPotName, Dictionary<Guid, List<string>> fixedMatches, int target)
         {
-            return fixedMatches[clubId].Where(s => s.Contains(GenerateClubPotName(null, againstPotName))).Count() >= target;
+            return ClubPotFixtureCount(clubId, againstPotName, fixedMatches) >= target;
         }
         private int ClubPotFixtureCount(Guid clubId, string againstPotName, Dictionary<Guid, List<string>> fixedMatches)
         {
