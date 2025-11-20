@@ -459,7 +459,7 @@ namespace UEFASwissFormatSelector.Services
                 fixedMatches[selectedHomeOpponent][awayFixtureIndex] = $"{awayFixture}{HomeAwayString(false)}";
             }
             //assign unselected club pot fixtures to be played away
-            var undecidedClubFixtures = fixedMatches[clubId].Where(fix => fix.Split("_").Count() < 3 && fix.Split(GenerateClubPotName(null, string.Empty))[1] == potName);
+            var undecidedClubFixtures = fixedMatches[clubId].Where(fix => fix.Split(separator).Count() < 3 && fix.Split(GenerateClubPotName(null, string.Empty))[1] == potName);
             if (undecidedClubFixtures != null)
             {
                 var awayOpponents = undecidedClubFixtures.Select(fix => ExtractClubId_Club_PotName(fix)).ToList();
