@@ -1,9 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.Collections;
-using System.Diagnostics.Metrics;
-using System.Linq;
-using System.Linq.Expressions;
-using UEFASwissFormatSelector.Models;
+﻿using UEFASwissFormatSelector.Models;
 
 namespace UEFASwissFormatSelector.Services
 {
