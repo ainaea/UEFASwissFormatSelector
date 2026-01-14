@@ -876,7 +876,7 @@ namespace UEFASwissFormatSelector.Services
             }
             var potNames = stats.OrderBy(kvp => kvp.Value.Count()).Select(kvp => kvp.Key).ToList();
             int maxOpponenentFromADivision = 2;
-            var allOpponent = Duplicate(scenarioInstance.Opponents);
+            var allOpponent = scenarioInstance.Opponents;
             int potClubsCount = scenarioInstance.Pots.First().ClubsInPot.Count();
 
             int clubsPerPot = scenarioInstance.Pots.First().ClubsInPot.Count();
@@ -1213,8 +1213,7 @@ namespace UEFASwissFormatSelector.Services
                 else
                     break;
             }
-            fixedMatchesFull = GenerateFixedMatchesFull(fixedMatches, scenarioInstance.ClubsInScenarioInstance);
-            if (!scenarioInstance.Scenario.HomeAndAwayPerOpponent)
+            if (true /*!scenarioInstance.Scenario.HomeAndAwayPerOpponent*/)
             {
                 int minHomeMatchCount = scenarioInstance.Scenario.NumberOfGamesPerPot / 2;
                 int maxHomeMatchCount = minHomeMatchCount + scenarioInstance.Scenario.NumberOfGamesPerPot % 2;
@@ -1358,7 +1357,26 @@ namespace UEFASwissFormatSelector.Services
                     }
                 }
             }
+            if (scenarioInstance.Scenario.HomeAndAwayPerOpponent)
+            {
+                foreach (var kvp in fixedMatches)
+                {
+                    var kvpfixtures = kvp.Value.ToList();
+                    foreach (var fixture in kvpfixtures)
+                    {
+                        kvp.Value.Add(SwitchFixtureLocation(fixture));
+                    }
+                }
+            }
+            fixedMatchesFull = GenerateFixedMatchesFull(fixedMatches, scenarioInstance.ClubsInScenarioInstance);
             return (fixedMatchesFull, fixedMatches);
+        }
+        private string SwitchFixtureLocation(string fixture)
+        {
+            var fixtureBits = fixture.Split(separator);
+            if (fixtureBits.Length < 3)
+                return fixture;
+            return $"{fixtureBits[0]}_{fixtureBits[1]}_{fixtureBits[2] != true.ToString()}";
         }
         private void UpdateLocationOnly(Guid clubId, Dictionary<Guid, List<string>> fixedMatches, Guid selectedOpponent, bool prioritizeHome)
         {
